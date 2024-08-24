@@ -88,3 +88,16 @@ nav a:hover {
 button {
   @apply md:hidden text-gray-800 hover:text-red-600;
 }
+
+.background-image {
+  position: absolute; /* Asegura que la imagen esté detrás del contenido */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/La-de-Rucula.jpeg'); /* Ruta a tu imagen de pizza */
+  background-size: cover; /* Ajusta el tamaño de la imagen para cubrir toda la página */
+  background-position: center; /* Centra la imagen */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  z-index: -1; /* Coloca la imagen detrás del contenido */
+}
