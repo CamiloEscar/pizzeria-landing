@@ -9,58 +9,7 @@ import CartDialog from "@/components/CartDialog";
 import OrderDialog from "@/components/OrderDialog";
 import { ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
-
-const pizzas: Pizza[] = [
-  {
-    id: 1,
-    name: "La de Rúcula",
-    description: "Salsa de tomate, queso mozzarella, queso provolone, rúcula fresca, con un toque de aceite de oliva opcional.",
-    price: 9.800,
-    image: "/images/La-de-Rucula.jpeg",
-    rating: 4.5,
-  },
-  {
-    id: 2,
-    name: "Roquefort",
-    description:"Salsa de tomate, queso mozzarella, queso azul.",
-    price: 10.100,
-    image: "/images/Mozzarella.jpeg",
-    rating: 4.3,
-  },
-  {
-    id: 3,
-    name: "Fugazzeta",
-    description: "Queso mozzarella, aji, cebolla curada.",
-    price: 11.99,
-    image: "/images/Mozzarella.jpeg",
-    rating: 4.7,
-  },
-  {
-    id: 4,
-    name: "Cuatro Quesos",
-    description:
-      "Pizza con una mezcla de mozzarella, cheddar, gorgonzola y parmesano.",
-    price: 12.99,
-    image: "/images/Mozzarella.jpeg",
-    rating: 4.3,
-  },
-  {
-    id: 5,
-    name: "Hawaiana",
-    description: "Pizza con salsa de tomate, mozzarella, jamón y piña.",
-    price: 11.49,
-    image: "/images/Mozzarella.jpeg",
-    rating: 4.0,
-  },
-  {
-    id: 6,
-    name: "Mozzarella",
-    description: "Pizza con salsa de tomate, mozzarella y pepperoni.",
-    price: 11.99,
-    image: "/images/Mozzarella.jpeg",
-    rating: 4.7,
-  },
-];
+import api from "@/interfaces/api";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,6 +23,22 @@ export default function Home() {
     desiredTime: "",
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const [pizzas, setPizzas] = useState<Pizza[]>([]); // Estado para las pizzas
+
+  useEffect(() => {
+    // Llama a la función de API para obtener las pizzas
+    const fetchPizzas = async () => {
+      try {
+        const fetchedPizzas = await api.pizza.list();
+        setPizzas(fetchedPizzas);
+      } catch (error) {
+        console.error("Error al obtener las pizzas:", error);
+      }
+    };
+
+    fetchPizzas();
+  }, []);
 
   const addToCart = (pizza: Pizza) => {
     setCart((prevCart) => ({
@@ -111,13 +76,10 @@ export default function Home() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setOrderData((prevData) => ({
-      ...prevData,
-      [name]: name === "rating" ? parseFloat(value) : value,
-    }));
+    setOrderData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleWhatsAppClick = async () => {
+  const handleWhatsAppClick = async (): Promise<{ success: boolean }> => {
     const cartItems = Object.entries(cart)
       .map(([pizzaId, quantity]) => {
         const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
@@ -133,7 +95,6 @@ export default function Home() {
   Nombre: ${orderData.name}
   Dirección: ${orderData.address}
   Teléfono: ${orderData.phone}
-  Puntaje: ${orderData.rating}
   Hora deseada: ${orderData.desiredTime}`;
 
     // Enviar a WhatsApp
@@ -152,8 +113,8 @@ export default function Home() {
     formData.append("entry.1563818822", orderData.specialInstructions);
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
-    formData.append("entry.1234567890", cartItems); // Asegúrate de que este entry ID sea correcto
-    formData.append("entry.0987654321", getTotalPrice()); // Asegúrate de que este entry ID sea correcto
+    formData.append("entry.1789182107", cartItems); // Asegúrate de que este entry ID sea correcto
+    formData.append("entry.849798555", getTotalPrice()); // Asegúrate de que este entry ID sea correcto
 
     try {
       const response = await fetch(formUrl, {
@@ -169,10 +130,18 @@ export default function Home() {
     // Cerrar el modal y limpiar el carrito
     setIsModalOpen(false);
     setCart({});
+    return { success: true };
   };
 
   const handleOrderDialogOpen = () => {
     setIsModalOpen(true);
+    setIsCartOpen(false);
+  };
+
+  const handleOrderConfirm = async () => {
+    await handleWhatsAppClick();
+    setIsModalOpen(false);
+    setCart({}); // Vacía el carrito
   };
 
   const [currentSection, setCurrentSection] = useState("Inicio");
@@ -197,6 +166,10 @@ export default function Home() {
 
     return () => sectionObserver.disconnect();
   }, []);
+
+  const clearCart = () => {
+    setCart({});
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -315,6 +288,8 @@ export default function Home() {
             orderData={orderData}
             cart={cart}
             pizzas={pizzas}
+            clearCart={clearCart}
+            handleOrderConfirm={handleOrderConfirm}
           />
         )}
 
