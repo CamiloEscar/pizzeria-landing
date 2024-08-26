@@ -1,16 +1,48 @@
 "use client";
 
-// https://www.milamarket.ar/productos/
-
 import { useState, useEffect } from "react";
 import { Pizza } from "../interfaces/pizza";
 import { PizzaCard } from "@/components/PizzaCard";
 import CartDialog from "@/components/CartDialog";
 import OrderDialog from "@/components/OrderDialog";
-import { ShoppingCart } from "lucide-react";
-import { motion } from "framer-motion";
+import { ShoppingCart, Menu } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import api from "@/interfaces/api";
+import Image from "next/image";
+import QuienesSomos from "@/components/QuienesSomos";
+import ArmarPedido from "@/components/ArmaTuPedido";
+import Footer from "@/components/Footer";
+import Contacto from "@/components/Contacto";
 
+// Componente para la sección de héroe
+const HeroSection = () => (
+  <section
+    id="#inicio"
+    className="relative h-screen flex items-center justify-center text-white"
+  >
+    <div className="absolute inset-0 bg-black opacity-50"></div>
+    <div className="z-10 text-center">
+      <h1 className="text-5xl md:text-6xl font-bold mb-4">
+        Pizzería Deliciosa
+      </h1>
+      <p className="text-xl md:text-2xl mb-8">
+        Las mejores pizzas artesanales de la ciudad
+      </p>
+      <a
+        href="#productos"
+        className="bg-red-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-red-700 transition duration-300"
+      >
+        Ver Menú
+      </a>
+    </div>
+    <div
+      className="absolute inset-0 bg-cover bg-center"
+      style={{ backgroundImage: "url('/images/La-de-Rucula.jpeg')" }}
+    ></div>
+  </section>
+);
+
+// Componente principal
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
@@ -23,11 +55,10 @@ export default function Home() {
     desiredTime: "",
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  const [pizzas, setPizzas] = useState<Pizza[]>([]); // Estado para las pizzas
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Llama a la función de API para obtener las pizzas
     const fetchPizzas = async () => {
       try {
         const fetchedPizzas = await api.pizza.list();
@@ -89,13 +120,11 @@ export default function Home() {
       })
       .join(", ");
 
-    const message = `Hola, me gustaría ordenar:
-  ${cartItems}
-  Total: $${getTotalPrice()}
-  Nombre: ${orderData.name}
-  Dirección: ${orderData.address}
-  Teléfono: ${orderData.phone}
-  Hora deseada: ${orderData.desiredTime}`;
+    const message = `Hola, me gustaría ordenar:\n${cartItems}\nTotal: $${getTotalPrice()}\nNombre: ${
+      orderData.name
+    }\nDirección: ${orderData.address}\nTeléfono: ${
+      orderData.phone
+    }\nHora deseada: ${orderData.desiredTime}`;
 
     // Enviar a WhatsApp
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
@@ -113,11 +142,11 @@ export default function Home() {
     formData.append("entry.1563818822", orderData.specialInstructions);
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
-    formData.append("entry.1789182107", cartItems); // Asegúrate de que este entry ID sea correcto
-    formData.append("entry.849798555", getTotalPrice()); // Asegúrate de que este entry ID sea correcto
+    formData.append("entry.1789182107", cartItems);
+    formData.append("entry.849798555", getTotalPrice());
 
     try {
-      const response = await fetch(formUrl, {
+      await fetch(formUrl, {
         method: "POST",
         mode: "no-cors",
         body: formData,
@@ -141,190 +170,134 @@ export default function Home() {
   const handleOrderConfirm = async () => {
     await handleWhatsAppClick();
     setIsModalOpen(false);
-    setCart({}); // Vacía el carrito
+    setCart({});
   };
-
-  const [currentSection, setCurrentSection] = useState("Inicio");
-
-  useEffect(() => {
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setCurrentSection(
-              entry.target.getAttribute("data-section") || "Inicio"
-            );
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    document.querySelectorAll("[data-section]").forEach((section) => {
-      sectionObserver.observe(section);
-    });
-
-    return () => sectionObserver.disconnect();
-  }, []);
 
   const clearCart = () => {
     setCart({});
   };
 
-  return (
-    <div className="relative min-h-screen">
-      {/* Imagen de fondo */}
-      <div className="background-image"></div>
-      <div className="min-h-screen bg-gradient-to-br from-orange-100 to-red-100 py-12 px-4 sm:px-6 lg:px-8">
-        <header className="bg-white shadow-md py-4">
-          <div className="container mx-auto grid grid-cols-3 items-center px-4">
-            <div className="flex justify-center col-start-1 col-end-2">
-              <div className="text-2xl font-bold text-red-600 transform transition-transform hover:scale-105">
-                LOGO
-              </div>
-            </div>
-            <nav className="flex justify-center col-start-2 col-end-3 space-x-6">
-              <a
-                href="#inicio"
-                className="text-gray-800 hover:text-red-600 transition-transform duration-300"
-              >
-                Inicio
-              </a>
-              <a
-                href="#productos"
-                className="text-gray-800 hover:text-red-600 transition-transform duration-300"
-              >
-                Productos
-              </a>
-              <a
-                href="#contacto"
-                className="text-gray-800 hover:text-red-600 transition-transform duration-300"
-              >
-                Contacto
-              </a>
-              <a
-                href="#calidad"
-                className="text-gray-800 hover:text-red-600 transition-transform duration-300"
-              >
-                Nuestra Calidad
-              </a>
-              <a
-                href="#tips"
-                className="text-gray-800 hover:text-red-600 transition-transform duration-300"
-              >
-                Tips
-              </a>
-            </nav>
-            <div className="flex justify-center col-start-3 col-end-4">
-              <div className="relative flex items-center">
-                <div className="bg-red-600 text-white rounded-full p-2 cursor-pointer shadow-lg transition-transform transform hover:scale-110">
-                  <ShoppingCart size={28} />
-                  {getTotalItems() > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                      {getTotalItems()}
-                    </span>
-                  )}
-                </div>
-                <div className="ml-4 text-gray-800">
-                  <p className="font-bold">Total Gastado:</p>
-                  <p>${getTotalPrice()}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+  const scrollToSection = (section: string) => {
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
-        <main className="bg-white py-12 px-4 sm:px-6 lg:px-8 rounded-lg shadow-md mt-8">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl font-extrabold text-center text-red-800 mb-8 transition-transform duration-300">
-              {currentSection === "Inicio"
-                ? "Nuestra Deliciosa Pizzería"
-                : currentSection}
-            </h1>
-            <p className="text-xl text-center text-gray-700 mb-12">
-              Disfruta de nuestras pizzas artesanales, hechas con los mejores
-              ingredientes
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+  return (
+    <div className="relative min-h-screen scroll-smooth md:scroll-auto">
+      <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <div className="text-2xl font-bold text-red-600">LOGO</div>
+          <nav className="hidden md:flex space-x-6">
+            {["inicio", "productos", "quienes-somos", "contacto"].map(
+              (section) => (
+                <a
+                  key={section}
+                  href={`#${section}`}
+                  className="text-gray-800 hover:text-red-600 transition duration-300"
+                  onClick={() => scrollToSection(section)}
+                >
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </a>
+              )
+            )}
+          </nav>
+          <div className="md:hidden">
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Menu size={24} />
+            </button>
+          </div>
+          <div className="flex items-center">
+            <motion.div
+              className="bg-red-600 text-white rounded-full p-2 cursor-pointer shadow-lg relative"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsCartOpen(!isCartOpen)}
+            >
+              <ShoppingCart size={24} />
+              <span className="absolute top-0 right-0 bg-red-800 text-xs text-white rounded-full px-2 py-1">
+                {getTotalItems()}
+              </span>
+            </motion.div>
+          </div>
+        </div>
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              className="md:hidden bg-white shadow-md py-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <nav className="space-y-4">
+                {["inicio", "productos", "quienes-somos", "contacto"].map(
+                  (section) => (
+                    <a
+                      key={section}
+                      href={`#${section}`}
+                      className="text-gray-800 hover:text-red-600 transition duration-300 block text-center"
+                      onClick={() => {
+                        scrollToSection(section);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {section.charAt(0).toUpperCase() + section.slice(1)}
+                    </a>
+                  )
+                )}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+      <main className="pt-20">
+        <section id="inicio">
+          <HeroSection />
+        </section>
+        <section id="productos" className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center text-red-800 mb-8">
+              Menú de Pizzas
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {pizzas.map((pizza) => (
                 <PizzaCard key={pizza.id} pizza={pizza} addToCart={addToCart} />
               ))}
             </div>
           </div>
-        </main>
+        </section>
+        <ArmarPedido />
+        <QuienesSomos />
+        <Contacto />
+        <Footer />
+      </main>
+      {isCartOpen && (
+        <CartDialog
+          open={isCartOpen}
+          onOpenChange={setIsCartOpen}
+          cart={cart}
+          pizzas={pizzas}
+          addToCart={addToCart}
+          removeFromCart={removeFromCart}
+          getTotalPrice={getTotalPrice}
+          handleOrderDialogOpen={handleOrderDialogOpen}
+        />
+      )}
 
-        <motion.div
-          className="fixed bottom-8 right-8 bg-red-600 text-white rounded-full p-4 cursor-pointer shadow-lg transition-transform transform hover:scale-110"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsCartOpen(true)}
-        >
-          <ShoppingCart size={28} />
-          {getTotalItems() > 0 && (
-            <span className="absolute -top-2 -right-2 bg-yellow-400 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-              {getTotalItems()}
-            </span>
-          )}
-        </motion.div>
-        {isCartOpen && (
-          <CartDialog
-            open={isCartOpen}
-            onOpenChange={setIsCartOpen}
-            cart={cart}
-            pizzas={pizzas}
-            addToCart={addToCart}
-            removeFromCart={removeFromCart}
-            getTotalPrice={getTotalPrice}
-            handleOrderDialogOpen={handleOrderDialogOpen}
-          />
-        )}
-
-        {isModalOpen && (
-          <OrderDialog
-            open={isModalOpen}
-            onOpenChange={setIsModalOpen}
-            handleInputChange={handleInputChange}
-            handleWhatsAppClick={handleWhatsAppClick}
-            orderData={orderData}
-            cart={cart}
-            pizzas={pizzas}
-            clearCart={clearCart}
-            handleOrderConfirm={handleOrderConfirm}
-          />
-        )}
-
-        {/* <main className="container mx-auto mt-6 px-4">
-        <section id="inicio" data-section="Inicio">
-          <h1 className="text-4xl font-bold text-center text-red-600 mb-6">Bienvenido a nuestra pizzería</h1>
-        </section>
-        <section id="productos" data-section="Productos">
-          <h2 className="text-3xl font-semibold text-center text-red-600 mb-6">Nuestros Productos</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pizzas.map((pizza) => (
-              <PizzaCard key={pizza.id} pizza={pizza}  addToCart={addToCart} />
-            ))}
-          </div>
-        </section>
-        <section id="contacto" data-section="Contacto">
-          <h2 className="text-3xl font-semibold text-center text-red-600 mb-6">Contacto</h2>
-          <p className="text-center text-gray-800">Si tienes alguna pregunta, no dudes en contactarnos.</p>
-        </section>
-        <section id="calidad" data-section="Nuestra Calidad">
-          <h2 className="text-3xl font-semibold text-center text-red-600 mb-6">Nuestra Calidad</h2>
-          <p className="text-center text-gray-800">En nuestra pizzería, nos enorgullecemos de utilizar los mejores ingredientes para ofrecerte una experiencia culinaria excepcional.</p>
-        </section>
-        <section id="tips" data-section="Tips">
-          <h2 className="text-3xl font-semibold text-center text-red-600 mb-6">Tips para Disfrutar al Máximo</h2>
-          <p className="text-center text-gray-800">Aquí encontrarás algunos consejos para disfrutar al máximo de nuestras pizzas y mejorar tu experiencia.</p>
-        </section>
-      </main> */}
-
-        <footer className="bg-white shadow-md py-4">
-          <div className="container mx-auto text-center text-gray-800">
-            <p>&copy; 2024 | Ejemplo..</p>
-          </div>
-        </footer>
-      </div>
+      {isModalOpen && (
+        <OrderDialog
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          handleInputChange={handleInputChange}
+          handleWhatsAppClick={handleWhatsAppClick}
+          orderData={orderData}
+          cart={cart}
+          pizzas={pizzas}
+          clearCart={clearCart}
+          handleOrderConfirm={handleOrderConfirm}
+        />
+      )}
     </div>
   );
 }
