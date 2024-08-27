@@ -8,41 +8,21 @@ import OrderDialog from "@/components/OrderDialog";
 import { ShoppingCart, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/interfaces/api";
-import Image from "next/image";
 import QuienesSomos from "@/components/QuienesSomos";
-import ArmarPedido from "@/components/ArmaTuPedido";
+import ArmarPedido from "@/components/ArmarPedido";
 import Footer from "@/components/Footer";
 import Contacto from "@/components/Contacto";
+import { HeroSection } from "@/components/HeroSection";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-// Componente para la sección de héroe
-const HeroSection = () => (
-  <section
-    id="#inicio"
-    className="relative h-screen flex items-center justify-center text-white"
-  >
-    <div className="absolute inset-0 bg-black opacity-50"></div>
-    <div className="z-10 text-center">
-      <h1 className="text-5xl md:text-6xl font-bold mb-4">
-        Pizzería Deliciosa
-      </h1>
-      <p className="text-xl md:text-2xl mb-8">
-        Las mejores pizzas artesanales de la ciudad
-      </p>
-      <a
-        href="#productos"
-        className="bg-red-600 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-red-700 transition duration-300"
-      >
-        Ver Menú
-      </a>
-    </div>
-    <div
-      className="absolute inset-0 bg-cover bg-center"
-      style={{ backgroundImage: "url('/images/La-de-Rucula.jpeg')" }}
-    ></div>
-  </section>
-);
-
-// Componente principal
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
@@ -190,23 +170,59 @@ export default function Home() {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="text-2xl font-bold text-red-600">LOGO</div>
           <nav className="hidden md:flex space-x-6">
-            {["inicio", "productos", "quienes-somos", "contacto"].map(
-              (section) => (
-                <a
-                  key={section}
-                  href={`#${section}`}
-                  className="text-gray-800 hover:text-red-600 transition duration-300"
-                  onClick={() => scrollToSection(section)}
-                >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
-                </a>
-              )
-            )}
+            {[
+              "inicio",
+              "productos",
+              "armar-pedido",
+              "quienes-somos",
+              "contacto",
+            ].map((section) => (
+              <Button
+                key={section}
+                variant="ghost"
+                className="text-gray-800 hover:text-red-600 transition duration-300"
+                onClick={() => scrollToSection(section)}
+              >
+                {section.charAt(0).toUpperCase() + section.slice(1)}
+              </Button>
+            ))}
           </nav>
           <div className="md:hidden">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              <Menu size={24} />
-            </button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>
+                    Navigate to different sections of the page.
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-4 space-y-4">
+                  {[
+                    "inicio",
+                    "productos",
+                    "armar-pedido",
+                    "quienes-somos",
+                    "contacto",
+                  ].map((section) => (
+                    <Button
+                      key={section}
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        scrollToSection(section);
+                      }}
+                    >
+                      {section.charAt(0).toUpperCase() + section.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
           <div className="flex items-center">
             <motion.div
@@ -222,82 +238,75 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              className="md:hidden bg-white shadow-md py-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <nav className="space-y-4">
-                {["inicio", "productos", "quienes-somos", "contacto"].map(
-                  (section) => (
-                    <a
-                      key={section}
-                      href={`#${section}`}
-                      className="text-gray-800 hover:text-red-600 transition duration-300 block text-center"
-                      onClick={() => {
-                        scrollToSection(section);
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      {section.charAt(0).toUpperCase() + section.slice(1)}
-                    </a>
-                  )
-                )}
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
       <main className="pt-20">
         <section id="inicio">
           <HeroSection />
         </section>
-        <section id="productos" className="py-16 bg-gray-50">
+        <section id="productos" className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-red-800 mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
               Menú de Pizzas
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 justify-items-center">
+              {" "}
+              {/* Sin espacio entre las tarjetas y centrado */}
               {pizzas.map((pizza) => (
-                <PizzaCard key={pizza.id} pizza={pizza} addToCart={addToCart} />
+                <div
+                  key={pizza.id}
+                  className="flex justify-center items-center"
+                >
+                  <PizzaCard pizza={pizza} addToCart={addToCart} />
+                </div>
               ))}
             </div>
           </div>
         </section>
-        <ArmarPedido />
+
+        <section id="armar-pedido">
+          <ArmarPedido
+            pizzas={pizzas}
+            cart={cart}
+            addToCart={(pizzaId: number) =>
+              addToCart(pizzas.find((p) => p.id === pizzaId)!)
+            }
+            removeFromCart={removeFromCart}
+            handleConfirmOrder={handleOrderConfirm}
+          />
+        </section>
         <QuienesSomos />
         <Contacto />
         <Footer />
       </main>
-      {isCartOpen && (
-        <CartDialog
-          open={isCartOpen}
-          onOpenChange={setIsCartOpen}
-          cart={cart}
-          pizzas={pizzas}
-          addToCart={addToCart}
-          removeFromCart={removeFromCart}
-          getTotalPrice={getTotalPrice}
-          handleOrderDialogOpen={handleOrderDialogOpen}
-        />
-      )}
-
-      {isModalOpen && (
-        <OrderDialog
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          handleInputChange={handleInputChange}
-          handleWhatsAppClick={handleWhatsAppClick}
-          orderData={orderData}
-          cart={cart}
-          pizzas={pizzas}
-          clearCart={clearCart}
-          handleOrderConfirm={handleOrderConfirm}
-        />
-      )}
+      <AnimatePresence>
+        {isCartOpen && (
+          <CartDialog
+            open={isCartOpen}
+            onOpenChange={setIsCartOpen}
+            cart={cart}
+            pizzas={pizzas}
+            addToCart={addToCart}
+            removeFromCart={removeFromCart}
+            getTotalPrice={getTotalPrice}
+            handleOrderDialogOpen={handleOrderDialogOpen}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {isModalOpen && (
+          <OrderDialog
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            handleInputChange={handleInputChange}
+            handleWhatsAppClick={handleWhatsAppClick}
+            orderData={orderData}
+            cart={cart}
+            pizzas={pizzas}
+            clearCart={clearCart}
+            handleOrderConfirm={handleOrderConfirm}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
