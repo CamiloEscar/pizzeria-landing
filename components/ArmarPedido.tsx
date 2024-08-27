@@ -25,10 +25,16 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const [dateError, setDateError] = useState(false);
   const [timeError, setTimeError] = useState(false);
   const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [specialInstructions, setSpecialInstructions] = useState("");
 
-  // Referencias para los campos de fecha y hora
   const dateRef = useRef<HTMLInputElement | null>(null);
   const timeRef = useRef<HTMLInputElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const addressRef = useRef<HTMLInputElement | null>(null);
+  const phoneRef = useRef<HTMLInputElement | null>(null);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
@@ -38,6 +44,22 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedTime(e.target.value);
     setTimeError(false);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(e.target.value);
+  };
+
+  const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSpecialInstructions(e.target.value);
   };
 
   const addToArmarPedidoCart = (pizzaId: number) => {
@@ -72,21 +94,66 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const handleConfirmOrderClick = async () => {
     if (!selectedDate) {
       setDateError(true);
-      // Desplazar la vista al campo de fecha
       dateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     if (!selectedTime) {
       setTimeError(true);
-      // Desplazar la vista al campo de hora
       timeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-
+    if (!name) {
+      nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!address) {
+      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!phone) {
+      phoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  
     setLoading(true);
     try {
+      const formResponse = await fetch('https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          'entry.2020561029': name, // ID de entrada del formulario para el nombre
+          'entry.1741915942': address, // ID de entrada del formulario para la dirección
+          'entry.1517497244': phone, // ID de entrada del formulario para el teléfono
+          'entry.1563818822': specialInstructions, // ID de entrada del formulario para instrucciones especiales
+          'entry.13111002': selectedDate, // ID de entrada del formulario para la fecha
+          'entry.195003812': selectedTime, // ID de entrada del formulario para la hora
+          'entry.1789182107': JSON.stringify(armarPedidoCart), // ID de entrada del formulario para el carrito
+          'entry.849798555': getTotalPrice(), // ID de entrada del formulario para el total
+        }).toString(),
+      });
+  
+      if (!formResponse.ok) {
+        const errorText = await formResponse.text();
+        throw new Error(`Error en la solicitud de envío. Código de estado: ${formResponse.status}, Detalles: ${errorText}`);
+      }
+      // Enviar a WhatsApp
+      const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(armarPedidoCart)
+        .map(([pizzaId, quantity]) => {
+          const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+          return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
+        })
+        .join(", ")}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
+      const encodedMessage = encodeURIComponent(whatsappMessage);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+
       await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime);
       setArmarPedidoCart({});
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -99,12 +166,66 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
           Armar tu Pedido para Otro Día
         </h2>
         <div className="mb-6">
+          <label className="block mb-2 text-gray-700 font-medium text-center">Nombre:</label>
+          <Input
+            type="text"
+            value={name}
+            onChange={handleNameChange}
+            ref={nameRef}
+            className={`w-full md:w-1/2 mx-auto ${!name ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {!name && (
+            <p className="text-red-500 text-sm mt-1 text-center">
+              Por favor, ingresa tu nombre.
+            </p>
+          )}
+        </div>
+        <div className="mb-6">
+          <label className="block mb-2 text-gray-700 font-medium text-center">Dirección:</label>
+          <Input
+            type="text"
+            value={address}
+            onChange={handleAddressChange}
+            ref={addressRef}
+            className={`w-full md:w-1/2 mx-auto ${!address ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {!address && (
+            <p className="text-red-500 text-sm mt-1 text-center">
+              Por favor, ingresa tu dirección.
+            </p>
+          )}
+        </div>
+        <div className="mb-6">
+          <label className="block mb-2 text-gray-700 font-medium text-center">Teléfono:</label>
+          <Input
+            type="tel"
+            value={phone}
+            onChange={handlePhoneChange}
+            ref={phoneRef}
+            className={`w-full md:w-1/2 mx-auto ${!phone ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
+          />
+          {!phone && (
+            <p className="text-red-500 text-sm mt-1 text-center">
+              Por favor, ingresa tu teléfono.
+            </p>
+          )}
+        </div>
+        <div className="mb-6">
+          <label className="block mb-2 text-gray-700 font-medium text-center">Instrucciones Especiales:</label>
+          <Input
+            type="text"
+            value={specialInstructions}
+            onChange={handleSpecialInstructionsChange}
+            className="w-full md:w-1/2 mx-auto border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+        <div className="mb-6">
           <label className="block mb-2 text-gray-700 font-medium text-center">Selecciona el día:</label>
           <Input
             type="date"
             value={selectedDate}
             onChange={handleDateChange}
-            ref={dateRef} // Asignar referencia aquí
+            ref={dateRef}
             className={`w-full md:w-1/2 mx-auto ${dateError ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
           />
           {dateError && (
@@ -119,7 +240,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
             type="time"
             value={selectedTime}
             onChange={handleTimeChange}
-            ref={timeRef} // Asignar referencia aquí
+            ref={timeRef}
             className={`w-full md:w-1/2 mx-auto ${timeError ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
           />
           {timeError && (
