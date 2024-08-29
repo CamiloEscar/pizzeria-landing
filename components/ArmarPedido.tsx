@@ -3,13 +3,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pizza } from "@/interfaces/pizza";
 import SmallPizzaCard from "@/components/SmallPizzaCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ArmarPedidoProps {
   pizzas: Pizza[];
   cart: { [key: number]: number };
   addToCart: (pizzaId: number) => void;
   removeFromCart: (pizzaId: number) => void;
-  handleConfirmOrder: (cart: { [key: number]: number }, date: string, time: string) => Promise<void>;
+  handleConfirmOrder: (
+    cart: { [key: number]: number },
+    date: string,
+    time: string
+  ) => Promise<void>;
 }
 
 const ArmarPedido: React.FC<ArmarPedidoProps> = ({
@@ -17,33 +24,33 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   cart,
   addToCart,
   removeFromCart,
-  handleConfirmOrder
+  handleConfirmOrder,
 }) => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
-  const [dateError, setDateError] = useState(false);
-  const [timeError, setTimeError] = useState(false);
-  const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
+  const [armarPedidoCart, setArmarPedidoCart] = useState<{
+    [key: number]: number;
+  }>({});
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [specialInstructions, setSpecialInstructions] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("3442475466");
 
-  const dateRef = useRef<HTMLInputElement | null>(null);
-  const timeRef = useRef<HTMLInputElement | null>(null);
-  const nameRef = useRef<HTMLInputElement | null>(null);
-  const addressRef = useRef<HTMLInputElement | null>(null);
-  const phoneRef = useRef<HTMLInputElement | null>(null);
+  const dateRef = useRef<HTMLInputElement>(null);
+  const timeRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const whatsappNumberRef = useRef<HTMLInputElement>(null);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
-    setDateError(false);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedTime(e.target.value);
-    setTimeError(false);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +65,16 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     setPhone(e.target.value);
   };
 
-  const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSpecialInstructionsChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setSpecialInstructions(e.target.value);
+  };
+
+  const handleWhatsappNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setWhatsappNumber(e.target.value);
   };
 
   const addToArmarPedidoCart = (pizzaId: number) => {
@@ -91,194 +106,233 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
       .toFixed(2);
   };
 
+  const submitFormToGoogleSheets = async () => {
+    const formUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
+
+    const cartItems = Object.entries(armarPedidoCart)
+      .map(([pizzaId, quantity]) => {
+        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+        return pizza
+          ? `${quantity}x ${pizza.name}`
+          : `${quantity}x (Pizza no encontrada)`;
+      })
+      .join(", ");
+
+    const formData = new FormData();
+    formData.append("entry.2020561029", name);
+    formData.append("entry.1741915942", address);
+    formData.append("entry.1517497244", phone);
+    formData.append("entry.1563818822", specialInstructions);
+    formData.append("entry.13111002", selectedDate);
+    formData.append("entry.195003812", selectedTime);
+    formData.append("entry.1789182107", cartItems);
+    formData.append("entry.849798555", getTotalPrice());
+
+    try {
+      const response = await fetch(formUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData,
+      });
+
+      console.log("Datos enviados a Google Sheets");
+      return { success: true };
+    } catch (error) {
+      console.error("Error al enviar datos a Google Sheets:", error);
+      return { success: false };
+    }
+  };
+
+  const sendWhatsAppMessage = () => {
+    const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(
+      armarPedidoCart
+    )
+      .map(([pizzaId, quantity]) => {
+        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+        return pizza
+          ? `${quantity}x ${pizza.name}`
+          : `${quantity}x (Pizza no encontrada)`;
+      })
+      .join(
+        ", "
+      )}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
+    const encodedMessage = encodeURIComponent(whatsappMessage);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
   const handleConfirmOrderClick = async () => {
-    if (!selectedDate) {
-      setDateError(true);
-      dateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    if (!selectedTime) {
-      setTimeError(true);
-      timeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    if (!name) {
-      nameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    if (!address) {
-      addressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-    if (!phone) {
-      phoneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
+    if (!validateForm()) return;
   
     setLoading(true);
     try {
-      const formResponse = await fetch('https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          'entry.2020561029': name, // ID de entrada del formulario para el nombre
-          'entry.1741915942': address, // ID de entrada del formulario para la dirección
-          'entry.1517497244': phone, // ID de entrada del formulario para el teléfono
-          'entry.1563818822': specialInstructions, // ID de entrada del formulario para instrucciones especiales
-          'entry.13111002': selectedDate, // ID de entrada del formulario para la fecha
-          'entry.195003812': selectedTime, // ID de entrada del formulario para la hora
-          'entry.1789182107': JSON.stringify(armarPedidoCart), // ID de entrada del formulario para el carrito
-          'entry.849798555': getTotalPrice(), // ID de entrada del formulario para el total
-        }).toString(),
-      });
-  
-      if (!formResponse.ok) {
-        const errorText = await formResponse.text();
-        throw new Error(`Error en la solicitud de envío. Código de estado: ${formResponse.status}, Detalles: ${errorText}`);
+      const result = await submitFormToGoogleSheets();
+      if (result.success) {
+        sendWhatsAppMessage();
+        await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime);
+        setArmarPedidoCart({});
+        console.log("Pedido confirmado y WhatsApp enviado");
+      } else {
+        throw new Error("Failed to submit form");
       }
-      // Enviar a WhatsApp
-      const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(armarPedidoCart)
-        .map(([pizzaId, quantity]) => {
-          const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-          return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
-        })
-        .join(", ")}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      window.open(whatsappUrl, '_blank');
-
-      await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime);
-      setArmarPedidoCart({});
     } catch (error) {
-      console.error('Error:', error);
-      alert('Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo.');
+      console.error("Error:", error);
+      alert(
+        "Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const validateForm = () => {
+    if (!name || !address || !phone || !selectedDate || !selectedTime) {
+      // Scroll to the first empty field
+      for (const ref of [nameRef, addressRef, phoneRef, dateRef, timeRef]) {
+        if (ref.current && !ref.current.value) {
+          ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   return (
-    <section className="p-6 md:p-10 bg-white rounded-lg shadow-lg border border-gray-200">
-      <div className="container mx-auto max-w-6xl">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 text-center">
+    <Card className="p-4 md:p-6 bg-white rounded-lg shadow-md border border-gray-200">
+      <CardHeader>
+        <CardTitle className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 text-center">
           Armar tu Pedido para Otro Día
-        </h2>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Nombre:</label>
-          <Input
-            type="text"
-            value={name}
-            onChange={handleNameChange}
-            ref={nameRef}
-            className={`w-full md:w-1/2 mx-auto ${!name ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {!name && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              Por favor, ingresa tu nombre.
-            </p>
-          )}
-        </div>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Dirección:</label>
-          <Input
-            type="text"
-            value={address}
-            onChange={handleAddressChange}
-            ref={addressRef}
-            className={`w-full md:w-1/2 mx-auto ${!address ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {!address && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              Por favor, ingresa tu dirección.
-            </p>
-          )}
-        </div>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Teléfono:</label>
-          <Input
-            type="tel"
-            value={phone}
-            onChange={handlePhoneChange}
-            ref={phoneRef}
-            className={`w-full md:w-1/2 mx-auto ${!phone ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {!phone && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              Por favor, ingresa tu teléfono.
-            </p>
-          )}
-        </div>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Instrucciones Especiales:</label>
-          <Input
-            type="text"
-            value={specialInstructions}
-            onChange={handleSpecialInstructionsChange}
-            className="w-full md:w-1/2 mx-auto border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Selecciona el día:</label>
-          <Input
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            ref={dateRef}
-            className={`w-full md:w-1/2 mx-auto ${dateError ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {dateError && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              Por favor, selecciona un día.
-            </p>
-          )}
-        </div>
-        <div className="mb-6">
-          <label className="block mb-2 text-gray-700 font-medium text-center">Selecciona la hora:</label>
-          <Input
-            type="time"
-            value={selectedTime}
-            onChange={handleTimeChange}
-            ref={timeRef}
-            className={`w-full md:w-1/2 mx-auto ${timeError ? "border-red-500" : ""} border rounded-lg px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500`}
-          />
-          {timeError && (
-            <p className="text-red-500 text-sm mt-1 text-center">
-              Por favor, selecciona una hora.
-            </p>
-          )}
-        </div>
-        <div className="mb-8">
-          <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 text-center">
-            Selecciona tus pizzas:
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {pizzas.map((pizza) => (
-              <div key={pizza.id} className="flex justify-center">
-                <SmallPizzaCard
-                  pizza={pizza}
-                  addToCart={() => addToArmarPedidoCart(pizza.id)}
-                  removeFromCart={() => removeFromArmarPedidoCart(pizza.id)}
-                  quantity={armarPedidoCart[pizza.id] || 0}
-                  isSelected={armarPedidoCart[pizza.id] > 0}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Formulario */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Nombre:
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={handleNameChange}
+                  ref={nameRef}
+                  className={`w-full ${!name ? "border-slate-500" : ""}`}
                 />
               </div>
+              <div className="space-y-1">
+                <Label htmlFor="address" className="text-sm font-medium">
+                  Dirección:
+                </Label>
+                <Input
+                  id="address"
+                  type="text"
+                  value={address}
+                  onChange={handleAddressChange}
+                  ref={addressRef}
+                  className={`w-full ${!address ? "border-slate-500" : ""}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="phone" className="text-sm font-medium">
+                  Teléfono:
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  ref={phoneRef}
+                  className={`w-full ${!phone ? "border-slate-500" : ""}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="date" className="text-sm font-medium">
+                  Fecha:
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  ref={dateRef}
+                  className={`w-full ${
+                    !selectedDate ? "border-slate-500" : ""
+                  }`}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="time" className="text-sm font-medium">
+                  Hora:
+                </Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={selectedTime}
+                  onChange={handleTimeChange}
+                  ref={timeRef}
+                  className={`w-full ${
+                    !selectedTime ? "border-slate-500" : ""
+                  }`}
+                />
+              </div>
+              <div className="space-y-1 col-span-2">
+                <Label
+                  htmlFor="specialInstructions"
+                  className="text-sm font-medium"
+                >
+                  Instrucciones Especiales:
+                </Label>
+                <Textarea
+                  id="specialInstructions"
+                  value={specialInstructions}
+                  onChange={handleSpecialInstructionsChange}
+                  className="w-full"
+                />
+              </div>
+            </div>
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-lg font-semibold">
+                  Total: ${getTotalPrice()}
+                </span>
+                <Button onClick={handleConfirmOrderClick} disabled={loading}>
+                  {loading ? "Procesando..." : "Confirmar Pedido"}
+                </Button>
+              </div>
+          </div>
+
+          {/* Tarjetas de pizza en cuadrícula */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+            {pizzas.map((pizza) => (
+              <SmallPizzaCard
+                key={pizza.id}
+                pizza={pizza}
+                addToCart={() => addToArmarPedidoCart(pizza.id)}
+                removeFromCart={() => removeFromArmarPedidoCart(pizza.id)}
+                quantity={armarPedidoCart[pizza.id] || 0}
+                isSelected={armarPedidoCart[pizza.id] > 0}
+              />
             ))}
           </div>
+
+          {/* Total y botón de confirmación */}
+          <div className="flex justify-between items-center mt-4">
+            <span className="text-lg font-semibold">
+              Total: ${getTotalPrice()}
+            </span>
+            <Button onClick={handleConfirmOrderClick} disabled={loading}>
+              {loading ? "Procesando..." : "Confirmar Pedido"}
+            </Button>
+          </div>
         </div>
-        <div className="mt-6 text-2xl font-bold text-red-700 text-center">
-          Total: ${getTotalPrice()}
-        </div>
-        <Button
-          onClick={handleConfirmOrderClick}
-          className="w-full md:w-auto mt-6 bg-green-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition-colors mx-auto"
-          disabled={loading || Object.keys(armarPedidoCart).length === 0}
-        >
-          {loading ? "Enviando..." : "Confirmar Pedido para Otro Día"}
-        </Button>
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 };
 

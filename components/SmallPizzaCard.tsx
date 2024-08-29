@@ -21,13 +21,13 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
 }) => {
   return (
     <motion.div
-      className={`bg-white rounded-lg shadow-md overflow-hidden transition-all ${
+      className={`bg-gray-100 rounded-lg shadow-lg overflow-hidden transition-all ${
         isSelected ? "border-2 border-green-500" : "border border-gray-200"
-      } hover:shadow-lg flex flex-col h-full text-sm w-full max-w-[250px]`} // Tamaño fijo
+      } hover:shadow-xl flex flex-col h-full text-sm w-full max-w-[400px] md:max-w-[350px]`} // Aumenta el ancho máximo y adapta para pantallas más pequeñas
       whileHover={{ scale: 1.03 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="relative w-full h-40"> {/* Ajusta la altura para el contenedor de la imagen */}
+      <div className="relative w-full h-56 md:h-48"> {/* Ajusta la altura para el contenedor de la imagen */}
         <Image
           src={pizza.image}
           alt={pizza.name}
@@ -36,37 +36,37 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
           unoptimized
         />
       </div>
-      <div className="p-3 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow bg-gradient-to-t from-transparent to-black/30"> {/* Fondo con degradado */}
         <div>
-          <h3 className="text-base font-semibold text-gray-800 mb-1">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">
             {pizza.name}
           </h3>
-          <p className="text-xs text-gray-600 mb-2 line-clamp-2">{pizza.description}</p>
+          <p className="text-sm text-gray-600 mb-2 line-clamp-2">{pizza.description}</p>
           <div className="flex items-center mb-2">
             <span className="text-lg font-bold text-red-600">
               ${pizza.price.toFixed(2)}
             </span>
             <div className="ml-2 flex items-center text-yellow-400">
-              <Star size={14} />
-              <span className="ml-1 text-xs text-gray-700">
+              <Star size={16} />
+              <span className="ml-1 text-sm text-gray-700">
                 {pizza.rating.toFixed(1)}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-center mt-2">
+        <div className="flex flex-col md:flex-row justify-between items-center mt-2">
           {isSelected ? (
-            <div className="flex items-center">
+            <div className="flex items-center mb-2 md:mb-0">
               <Button
                 onClick={() => removeFromCart(pizza.id)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-600 p-1 rounded-l-md"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 p-1 rounded-l-md"
               >
                 <Minus size={16} />
               </Button>
-              <span className="px-3 py-1 bg-gray-100">{quantity}</span>
+              <span className="px-3 py-1 bg-gray-200">{quantity}</span>
               <Button
                 onClick={() => addToCart(pizza.id)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-600 p-1 rounded-r-md"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 p-1 rounded-r-md"
               >
                 <Plus size={16} />
               </Button>
@@ -86,7 +86,7 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
                   removeFromCart(pizza.id);
                 }
               }}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-600 p-1 rounded-md ml-2"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 p-1 rounded-md ml-2"
             >
               <Trash size={16} />
             </Button>
