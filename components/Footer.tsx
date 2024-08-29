@@ -6,7 +6,7 @@ import { Facebook, Twitter, Instagram } from "lucide-react";
 
 const Footer: React.FC = () => {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [tel, setTel] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    const whatsappMessage = `Hola, soy ${name}. Mi correo es ${email}. ${message}`;
+    const whatsappMessage = `Hola, soy ${name}. Mi correo es ${tel}. ${message}`;
     const whatsappNumber = "+543444123456"; // Cambia este número por el número de tu WhatsApp
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -46,15 +46,15 @@ const Footer: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 font-semibold mb-2">
-                Correo Electrónico:
+              <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
+                Telefono:
               </label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Tu correo electrónico"
+                id="tel"
+                type="text"
+                value={tel}
+                onChange={(e) => setTel(e.target.value)}
+                placeholder="Telefono"
                 required
               />
             </div>
@@ -102,18 +102,11 @@ const Footer: React.FC = () => {
                 size="icon"
                 className="text-white hover:text-red-600 transition-colors"
               >
-                <Twitter size={24} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:text-red-600 transition-colors"
-              >
                 <Instagram size={24} />
               </Button>
             </div>
             <div className="text-center md:text-right text-gray-400">
-              <p>&copy; {new Date().getFullYear()} Pizzería Donatello. Todos los derechos reservados.</p>
+              <p>&copy; {new Date().getFullYear()} Camilo Escar. Todos los derechos reservados.</p>
             </div>
           </div>
         </div>

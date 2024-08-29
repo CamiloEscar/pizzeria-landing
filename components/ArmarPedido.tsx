@@ -251,10 +251,23 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                   className={`w-full ${!phone ? "border-slate-500" : ""}`}
                 />
               </div>
-
+              <div className="space-y-1 col-span-1">
+                <Label
+                  htmlFor="specialInstructions"
+                  className="text-sm font-medium"
+                >
+                  Descripcion:
+                </Label>
+                <Textarea
+                  id="specialInstructions"
+                  value={specialInstructions}
+                  onChange={handleSpecialInstructionsChange}
+                  className="w-full"
+                />
+              </div>
               <div className="space-y-1">
                 <Label htmlFor="date" className="text-sm font-medium">
-                  Fecha:
+                  Fecha de entrega:
                 </Label>
                 <Input
                   id="date"
@@ -269,7 +282,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
               </div>
               <div className="space-y-1">
                 <Label htmlFor="time" className="text-sm font-medium">
-                  Hora:
+                  Hora deseada:
                 </Label>
                 <Input
                   id="time"
@@ -282,20 +295,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                   }`}
                 />
               </div>
-              <div className="space-y-1 col-span-2">
-                <Label
-                  htmlFor="specialInstructions"
-                  className="text-sm font-medium"
-                >
-                  Instrucciones Especiales:
-                </Label>
-                <Textarea
-                  id="specialInstructions"
-                  value={specialInstructions}
-                  onChange={handleSpecialInstructionsChange}
-                  className="w-full"
-                />
-              </div>
+
             </div>
               <div className="flex justify-between items-center mt-4">
                 <span className="text-lg font-semibold">
