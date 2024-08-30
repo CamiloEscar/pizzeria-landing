@@ -18,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ scrollToSection, getTotalItems, setIsCa
   const navItems = [
     { name: "Inicio", section: "inicio" },
     { name: "Menú", section: "productos" },
+    { name: "Combos", section: "combos" },
     { name: "Armar Pedido", section: "armar-pedido" },
     { name: "Contacto", section: "contacto" },
   ];
@@ -36,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ scrollToSection, getTotalItems, setIsCa
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Image src="/images/logo.jpeg" alt='logo' width={60} height={60} className="object-contain"/>
+          <Image src="/images/logo-header.png" alt='logo' width={60} height={60} className="object-contain"/>
 
         </motion.div>
         

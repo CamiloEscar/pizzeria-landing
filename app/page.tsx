@@ -1,20 +1,25 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Pizza } from "../interfaces/pizza";
 import { PizzaCard } from "@/components/PizzaCard";
 import CartDialog from "@/components/CartDialog";
 import OrderDialog from "@/components/OrderDialog";
+import ComboDialog from "@/components/ComboDialog";
 import { AnimatePresence } from "framer-motion";
 import api from "@/interfaces/api";
 import ArmarPedido from "@/components/ArmarPedido";
 import Footer from "@/components/Footer";
-import {HeroSection} from "@/components/HeroSection";
+import { HeroSection } from "@/components/HeroSection";
 import Header from "@/components/Header";
+import CombosSection from "@/components/ComboSection";
+import { Combo } from "@/interfaces/Combo";
 
 export default function Home() {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
+  const [isComboDialogOpen, setIsComboDialogOpen] = useState(false);
+  const [selectedCombo, setSelectedCombo] = useState<Combo | null>(null);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
   const [orderData, setOrderData] = useState({
     name: "",
@@ -26,6 +31,7 @@ export default function Home() {
   });
 
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [combos, setCombos] = useState<Combo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +51,20 @@ export default function Home() {
       }
     };
 
+    const fetchCombos = async () => {
+      try {
+        const combosData: Combo[] = await api.pizza.combos();
+        setCombos(combosData);
+      } catch (error) {
+        console.error("Error al obtener los combos:", error);
+        setError(
+          "No se pudieron cargar los combos. Por favor, intente de nuevo más tarde."
+        );
+      }
+    };
+
     fetchPizzas();
+    fetchCombos();
   }, []);
 
   const addToCart = (pizza: Pizza) => {
@@ -65,6 +84,12 @@ export default function Home() {
       }
       return newCart;
     });
+  };
+
+  const addToCartCombo = (comboName: string, pizzas: Pizza[], specialPrice: number) => {
+    setSelectedCombo({ comboName, specialPrice, pizzaIds: pizzas.map(pizza => pizza.id), originalPrice: pizzas.reduce((total, pizza) => total + pizza.price, 0) });
+    setIsComboDialogOpen(true);
+    setIsCartOpen(false);
   };
 
   const getTotalItems = useCallback(() => {
@@ -109,7 +134,7 @@ export default function Home() {
     )}`;
     window.open(whatsappUrl, "_blank");
 
-    // Enviar a Google Sheets (consider moving this to a server-side function)
+    // Enviar a Google Sheets
     const formUrl =
       "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
     const formData = new FormData();
@@ -120,7 +145,7 @@ export default function Home() {
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
     formData.append("entry.1789182107", cartItems);
-    formData.append("entry.849798555", getTotalPrice()); // Changed this line
+    formData.append("entry.849798555", getTotalPrice()); 
 
     try {
       await fetch(formUrl, {
@@ -134,18 +159,18 @@ export default function Home() {
     }
 
     // Cerrar el modal y limpiar el carrito
-    setIsModalOpen(false);
+    setIsOrderDialogOpen(false);
     setCart({});
     return { success: true };
   };
 
   const handleOrderDialogOpen = () => {
-    setIsModalOpen(true);
+    setIsOrderDialogOpen(true);
     setIsCartOpen(false);
   };
 
   const handleOrderConfirm = async () => {
-    setIsModalOpen(false);
+    setIsOrderDialogOpen(false);
     setCart({});
   };
 
@@ -189,6 +214,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <section id="combos">
+          <CombosSection addToCart={addToCartCombo} clearCart={clearCart}/>
+        </section>
         <section id="armar-pedido">
           <ArmarPedido
             pizzas={pizzas}
@@ -217,10 +245,10 @@ export default function Home() {
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {isModalOpen && (
+        {isOrderDialogOpen && (
           <OrderDialog
-            open={isModalOpen}
-            onOpenChange={setIsModalOpen}
+            open={isOrderDialogOpen}
+            onOpenChange={setIsOrderDialogOpen}
             handleInputChange={handleInputChange}
             handleWhatsAppClick={handleWhatsAppClick}
             orderData={orderData}
@@ -228,6 +256,20 @@ export default function Home() {
             pizzas={pizzas}
             clearCart={clearCart}
             handleOrderConfirm={handleOrderConfirm}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {selectedCombo && (
+          <ComboDialog
+            open={isComboDialogOpen}
+            onOpenChange={setIsComboDialogOpen}
+            combo={selectedCombo}
+            orderData={orderData}
+            handleWhatsAppClick={async () => ({ success: true })}
+            handleOrderConfirm={async () => {}}
+            clearCart={clearCart}
+            allPizzas={pizzas}
           />
         )}
       </AnimatePresence>

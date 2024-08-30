@@ -25,59 +25,86 @@ const Footer: React.FC = () => {
 
   return (
     <>
-      {/* Sección de Contacto */}
+      {/* Sección de Contacto y Mapa */}
       <section id="contacto" className="bg-gray-100 py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-red-800 mb-8">
-            Contáctanos
-          </h2>
-          <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
-                Nombre:
-              </label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre"
-                required
-              />
+        <div className="container mx-auto px-4 flex flex-col md:flex-row">
+          {/* Formulario de contacto */}
+          <div className="w-full md:w-1/2 mb-8 md:mb-0">
+            <h2 className="text-3xl font-bold text-red-800 mb-8">
+              Contáctanos
+            </h2>
+            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
+                  Nombre:
+                </label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Tu nombre"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
+                  Teléfono:
+                </label>
+                <Input
+                  id="tel"
+                  type="text"
+                  value={tel}
+                  onChange={(e) => setTel(e.target.value)}
+                  placeholder="Teléfono"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="message" className="block text-gray-700 font-semibold mb-2">
+                  Mensaje:
+                </label>
+                <Textarea
+                  id="message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Tu mensaje"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+                disabled={loading}
+              >
+                {loading ? "Enviando..." : "Enviar Mensaje"}
+              </Button>
+            </form>
+          </div>
+
+          {/* Mapa de ubicación y más información */}
+          <div className="w-full md:w-1/2 flex flex-col items-center">
+            <h2 className="text-3xl font-bold text-red-800 mb-8 text-center md:text-left">
+              Dónde nos encontramos
+            </h2>
+            <div className="w-full h-64 bg-gray-200 mb-8 rounded-lg overflow-hidden">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2739.8226435199044!2d-58.23241568414325!3d-32.484892251667095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95afda5201c4a74b%3A0xb1a91d198efeeecd!2sCongreso%20de%20Tucum%C3%A1n%20765%2C%20E3260BAP%20Concepci%C3%B3n%20del%20Uruguay%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses-419!2sar!4v1693439123280!5m2!1ses-419!2sar"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
-            <div className="mb-4">
-              <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
-                Telefono:
-              </label>
-              <Input
-                id="tel"
-                type="text"
-                value={tel}
-                onChange={(e) => setTel(e.target.value)}
-                placeholder="Telefono"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="message" className="block text-gray-700 font-semibold mb-2">
-                Mensaje:
-              </label>
-              <Textarea
-                id="message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Tu mensaje"
-                required
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-              disabled={loading}
-            >
-              {loading ? "Enviando..." : "Enviar Mensaje"}
-            </Button>
-          </form>
+            <p className="text-lg text-gray-700 mb-4 text-center md:text-left">
+              Congreso de Tucumán 765, Concepción del Uruguay
+            </p>
+            <p className="text-gray-600 text-center md:text-left">
+              Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te esperamos!
+            </p>
+          </div>
         </div>
       </section>
 
