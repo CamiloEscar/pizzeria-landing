@@ -29,6 +29,9 @@ const api = {
             });
         },
         combos: async (): Promise<Combo[]> => {
+            // Obtén la lista de pizzas completa para calcular originalPrice
+            const pizzas = await api.pizza.list();
+
             return fetch(
                 "https://docs.google.com/spreadsheets/d/1sAWtNHo2vGtWAZK_bMdCZfkI-oWqGyJ0QY_zms5ZNik/pub?gid=1122033337&single=true&output=tsv", // URL actualizada para la hoja Combos
                 { next: { tags: ["combos"] } }
@@ -56,7 +59,19 @@ const api = {
                             return;
                         }
 
-                        combos.push({ comboName: comboName.trim(), pizzaIds, specialPrice });
+                        // Calcula el originalPrice sumando los precios de las pizzas
+                        const originalPrice = pizzaIds.reduce((total, id) => {
+                            const pizza = pizzas.find(p => p.id === id);
+                            return pizza ? total + pizza.price : total;
+                        }, 0);
+
+                        // Empuja el combo al array con todas las propiedades requeridas
+                        combos.push({
+                            comboName: comboName.trim(),
+                            pizzaIds,
+                            specialPrice,
+                            originalPrice
+                        });
                     });
                 return combos;
             });
