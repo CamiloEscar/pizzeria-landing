@@ -49,14 +49,14 @@ const Footer: React.FC = () => {
               </div>
               <div className="mb-4">
                 <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
-                  Teléfono:
+                  Dirección:
                 </label>
                 <Input
-                  id="tel"
+                  id="address"
                   type="text"
                   value={tel}
                   onChange={(e) => setTel(e.target.value)}
-                  placeholder="Teléfono"
+                  placeholder="Dirección"
                   required
                 />
               </div>

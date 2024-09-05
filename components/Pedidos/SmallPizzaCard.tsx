@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Pizza } from "../../interfaces/pizza";
 import { Button } from "@/components/ui/button";
-import { Star, Trash, Plus, Minus } from "lucide-react";
+import { Star, ShoppingCart, Minus, Plus, Trash } from "lucide-react";
 import Image from "next/image";
 
 interface SmallPizzaCardProps {
@@ -21,13 +21,12 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
 }) => {
   return (
     <motion.div
-      className={`bg-gray-100 rounded-lg shadow-lg overflow-hidden transition-all ${
-        isSelected ? "border-2 border-green-500" : "border border-gray-200"
-      } hover:shadow-xl flex flex-col h-full text-sm w-full max-w-[400px] md:max-w-[350px]`} // Aumenta el ancho máximo y adapta para pantallas más pequeñas
+      className="relative overflow-hidden rounded-xl shadow-lg w-full max-w-sm h-[400px] group m-4 flex flex-col"
       whileHover={{ scale: 1.03 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative w-full h-56 md:h-48"> {/* Ajusta la altura para el contenedor de la imagen */}
+      {/* Background Image */}
+      <div className="relative w-full h-3/4">
         <Image
           src={pizza.image}
           alt={pizza.name}
@@ -35,29 +34,53 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
           className="object-cover"
           unoptimized
         />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-70 group-hover:opacity-80 transition-opacity duration-300" />
+        
+        {/* Selection Badge */}
+        {isSelected && (
+          <div className="absolute top-0 left-0 flex items-center justify-center p-4">
+            <motion.div
+              className="bg-green-600 text-white px-4 py-2 text-xs font-bold rounded-lg relative"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: [1, 0.7, 1, 0.7, 1] }} // Parpadeo
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              <span className="block whitespace-nowrap">Selected</span>
+              <div className="absolute top-0 left-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-green-600 border-t-transparent border-l-transparent border-r-transparent transform rotate-45 translate-x-1/2 translate-y-1/2 z-10" />
+              <div className="absolute top-0 left-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-white border-t-transparent border-l-transparent border-r-transparent transform rotate-45 translate-x-1/2 translate-y-1/2 -z-10" />
+            </motion.div>
+          </div>
+        )}
       </div>
-      <div className="p-4 flex flex-col flex-grow bg-gradient-to-t from-transparent to-black/30"> {/* Fondo con degradado */}
+
+      {/* Content */}
+      <div className="flex flex-col flex-grow p-4 bg-black bg-opacity-70 rounded-b-xl">
         <div className="flex flex-col flex-grow">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1">
+          <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">
             {pizza.name}
           </h3>
-          <p className="text-sm text-gray-600 mb-2 line-clamp-2">{pizza.description}</p>
-          <div className="flex items-center mb-4">
-            <span className="text-lg font-bold text-red-600 mr-2">
+          <p className="text-sm text-gray-200 line-clamp-2 drop-shadow">
+            {pizza.description}
+          </p>
+          <div className="flex justify-between items-center mt-auto mb-4">
+            <span className="text-2xl font-bold text-white drop-shadow-md">
               ${pizza.price.toFixed(2)}
             </span>
-            <div className="flex items-center text-yellow-400">
-              <Star size={20} />
-              <span className="ml-1 text-sm text-gray-700">
+            <div className="flex items-center bg-yellow-400 px-2 py-1 rounded-full">
+              <Star className="text-white fill-current" size={16} />
+              <span className="ml-1 text-white font-semibold text-sm">
                 {pizza.rating.toFixed(1)}
               </span>
             </div>
           </div>
         </div>
-        {/* Contenedor del botón */}
-        <div className="flex flex-col md:flex-row justify-between items-center mt-auto pt-4 border-t border-gray-200">
+        
+        {/* Selector Section */}
+        <div className="flex items-center justify-between border-t border-gray-200 pt-4 mt-2">
           {isSelected ? (
-            <div className="flex items-center mb-2 md:mb-0">
+            <div className="flex items-center">
               <Button
                 onClick={() => removeFromCart(pizza.id)}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-700 p-2 rounded-l-md"
@@ -75,9 +98,15 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
           ) : (
             <Button
               onClick={() => addToCart(pizza.id)}
-              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-xs transition-colors"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-full text-sm transition-all duration-300 flex items-center justify-center"
             >
-              Añadir
+              <span className="group-hover:-translate-y-full transition-transform duration-300">
+                Add to Cart
+              </span>
+              <span className="absolute flex items-center justify-center w-full h-full translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <ShoppingCart size={20} className="mr-2" />
+                Add
+              </span>
             </Button>
           )}
           {isSelected && (

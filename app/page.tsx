@@ -16,7 +16,6 @@ import OrderDialog from "@/components/Pizzas/OrderDialog";
 import ArmarPedido from "@/components/Pedidos/ArmarPedido";
 import CombosSection from "@/components/Main/ComboSection";
 import { PizzaCard } from "@/components/Pizzas/PizzaCard";
-import ArmarCombo from "@/components/Combos/ArmarCombo";
 
 // Types
 interface OrderData {
@@ -32,7 +31,6 @@ export default function Home() {
   // State
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
-  const [isComboDialogOpen, setIsComboDialogOpen] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState<Combo | null>(null);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
   const [orderData, setOrderData] = useState<OrderData>({
@@ -95,20 +93,6 @@ export default function Home() {
     setCart({});
   }, []);
 
-  // Combo functions
-  const addToCartCombo = useCallback(
-    (comboName: string, pizzas: Pizza[], specialPrice: number) => {
-      setSelectedCombo({
-        comboName,
-        specialPrice,
-        pizzaIds: pizzas.map((pizza) => pizza.id),
-        originalPrice: pizzas.reduce((total, pizza) => total + pizza.price, 0),
-      });
-      setIsComboDialogOpen(true);
-      setIsCartOpen(false);
-    },
-    []
-  );
 
   // Cart calculations
   const getTotalItems = useCallback(() => {

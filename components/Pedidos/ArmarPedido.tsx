@@ -29,9 +29,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
-  const [armarPedidoCart, setArmarPedidoCart] = useState<{
-    [key: number]: number;
-  }>({});
+  const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -65,27 +63,23 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     setPhone(e.target.value);
   };
 
-  const handleSpecialInstructionsChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSpecialInstructions(e.target.value);
   };
 
-  const handleWhatsappNumberChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleWhatsappNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWhatsappNumber(e.target.value);
   };
 
   const addToArmarPedidoCart = (pizzaId: number) => {
-    setArmarPedidoCart((prevCart) => ({
+    setArmarPedidoCart(prevCart => ({
       ...prevCart,
       [pizzaId]: (prevCart[pizzaId] || 0) + 1,
     }));
   };
 
   const removeFromArmarPedidoCart = (pizzaId: number) => {
-    setArmarPedidoCart((prevCart) => {
+    setArmarPedidoCart(prevCart => {
       const newCart = { ...prevCart };
       if (newCart[pizzaId] > 1) {
         newCart[pizzaId]--;
@@ -99,7 +93,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const getTotalPrice = () => {
     return Object.entries(armarPedidoCart)
       .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
         return pizza ? pizza.price * quantity : 0;
       })
       .reduce((sum, price) => sum + price, 0)
@@ -107,15 +101,12 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   };
 
   const submitFormToGoogleSheets = async () => {
-    const formUrl =
-      "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
+    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
 
     const cartItems = Object.entries(armarPedidoCart)
       .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-        return pizza
-          ? `${quantity}x ${pizza.name}`
-          : `${quantity}x (Pizza no encontrada)`;
+        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
+        return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
       })
       .join(", ");
 
@@ -135,7 +126,6 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
         mode: "no-cors",
         body: formData,
       });
-
       console.log("Datos enviados a Google Sheets");
       return { success: true };
     } catch (error) {
@@ -145,18 +135,12 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   };
 
   const sendWhatsAppMessage = () => {
-    const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(
-      armarPedidoCart
-    )
+    const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(armarPedidoCart)
       .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-        return pizza
-          ? `${quantity}x ${pizza.name}`
-          : `${quantity}x (Pizza no encontrada)`;
+        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
+        return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
       })
-      .join(
-        ", "
-      )}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
+      .join(", ")}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank");
@@ -164,7 +148,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
   const handleConfirmOrderClick = async () => {
     if (!validateForm()) return;
-  
+
     setLoading(true);
     try {
       const result = await submitFormToGoogleSheets();
@@ -178,9 +162,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
       }
     } catch (error) {
       console.error("Error:", error);
-      alert(
-        "Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo."
-      );
+      alert("Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -188,7 +170,6 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
   const validateForm = () => {
     if (!name || !address || !phone || !selectedDate || !selectedTime) {
-      // Scroll to the first empty field
       for (const ref of [nameRef, addressRef, phoneRef, dateRef, timeRef]) {
         if (ref.current && !ref.current.value) {
           ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -202,62 +183,51 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   return (
     <Card className="p-4 md:p-6 bg-white rounded-lg shadow-md border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 text-center">
+        <CardTitle className="text-2xl font-semibold mb-4 text-gray-800 text-center">
           Armar tu Pedido para Otro Día
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Formulario */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="name" className="text-sm font-medium">
-                  Nombre:
-                </Label>
+          <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-300">
+            <h3 className="text-lg font-semibold mb-2">Detalles del Pedido</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">Nombre:</Label>
                 <Input
                   id="name"
                   type="text"
                   value={name}
                   onChange={handleNameChange}
                   ref={nameRef}
-                  className={`w-full ${!name ? "border-slate-500" : ""}`}
+                  className="w-full"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="address" className="text-sm font-medium">
-                  Dirección:
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-sm font-medium">Dirección:</Label>
                 <Input
                   id="address"
                   type="text"
                   value={address}
                   onChange={handleAddressChange}
                   ref={addressRef}
-                  className={`w-full ${!address ? "border-slate-500" : ""}`}
+                  className="w-full"
                 />
               </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="phone" className="text-sm font-medium">
-                  Teléfono:
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium">Teléfono:</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={phone}
                   onChange={handlePhoneChange}
                   ref={phoneRef}
-                  className={`w-full ${!phone ? "border-slate-500" : ""}`}
+                  className="w-full"
                 />
               </div>
-              <div className="space-y-1 col-span-1">
-                <Label
-                  htmlFor="specialInstructions"
-                  className="text-sm font-medium"
-                >
-                  Descripcion:
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="specialInstructions" className="text-sm font-medium">Descripción:</Label>
                 <Textarea
                   id="specialInstructions"
                   value={specialInstructions}
@@ -265,51 +235,40 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                   className="w-full"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="date" className="text-sm font-medium">
-                  Fecha de entrega:
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-sm font-medium">Fecha de entrega:</Label>
                 <Input
                   id="date"
                   type="date"
                   value={selectedDate}
                   onChange={handleDateChange}
                   ref={dateRef}
-                  className={`w-full ${
-                    !selectedDate ? "border-slate-500" : ""
-                  }`}
+                  className="w-full"
                 />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="time" className="text-sm font-medium">
-                  Hora deseada:
-                </Label>
+              <div className="space-y-2">
+                <Label htmlFor="time" className="text-sm font-medium">Hora deseada:</Label>
                 <Input
                   id="time"
                   type="time"
                   value={selectedTime}
                   onChange={handleTimeChange}
                   ref={timeRef}
-                  className={`w-full ${
-                    !selectedTime ? "border-slate-500" : ""
-                  }`}
+                  className="w-full"
                 />
               </div>
-
             </div>
-              <div className="flex justify-between items-center mt-4">
-                <span className="text-lg font-semibold">
-                  Total: ${getTotalPrice()}
-                </span>
-                <Button onClick={handleConfirmOrderClick} disabled={loading}>
-                  {loading ? "Procesando..." : "Confirmar Pedido"}
-                </Button>
-              </div>
+            <div className="flex justify-between items-center mt-4">
+              <span className="text-lg font-semibold">Total: ${getTotalPrice()}</span>
+              <Button onClick={handleConfirmOrderClick} disabled={loading}>
+                {loading ? "Procesando..." : "Confirmar Pedido"}
+              </Button>
+            </div>
           </div>
 
           {/* Tarjetas de pizza en cuadrícula */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-            {pizzas.map((pizza) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+            {pizzas.map(pizza => (
               <SmallPizzaCard
                 key={pizza.id}
                 pizza={pizza}
@@ -319,16 +278,6 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                 isSelected={armarPedidoCart[pizza.id] > 0}
               />
             ))}
-          </div>
-
-          {/* Total y botón de confirmación */}
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-lg font-semibold">
-              Total: ${getTotalPrice()}
-            </span>
-            <Button onClick={handleConfirmOrderClick} disabled={loading}>
-              {loading ? "Procesando..." : "Confirmar Pedido"}
-            </Button>
           </div>
         </div>
       </CardContent>

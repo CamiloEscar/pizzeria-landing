@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, ShoppingCart, Facebook, Instagram} from 'lucide-react';
+import { Menu, ShoppingCart, Facebook, Instagram } from 'lucide-react';
 import Image from 'next/image';
 
 interface HeaderProps {
@@ -32,13 +32,13 @@ const Header: React.FC<HeaderProps> = ({ scrollToSection, getTotalItems, setIsCa
     <header className="bg-white bg-opacity-50 backdrop-blur-lg shadow-md py-2 md:py-4 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto px-2 md:px-4 max-w-screen-lg flex items-center justify-between">
         <motion.div 
-          className="text-xl md:text-2xl font-bold text-red-600 flex-shrink-0"
+          className="text-xl md:text-2xl font-bold text-red-600 flex-shrink-0 cursor-pointer"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          onClick={() => scrollToSection("inicio")}
         >
           <Image src="/images/logo-header.png" alt='logo' width={60} height={60} className="object-contain"/>
-
         </motion.div>
         
         <nav className="hidden md:flex flex-grow justify-center items-center space-x-4">
