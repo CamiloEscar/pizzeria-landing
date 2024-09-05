@@ -1,27 +1,41 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Pizza } from "../interfaces/pizza";
-import { PizzaCard } from "@/components/PizzaCard";
-import CartDialog from "@/components/CartDialog";
-import OrderDialog from "@/components/OrderDialog";
-import ComboDialog from "@/components/ComboDialog";
-import { AnimatePresence } from "framer-motion";
-import api from "@/interfaces/api";
-import ArmarPedido from "@/components/ArmarPedido";
-import Footer from "@/components/Footer";
-import { HeroSection } from "@/components/HeroSection";
-import Header from "@/components/Header";
-import CombosSection from "@/components/ComboSection";
 import { Combo } from "@/interfaces/Combo";
+import api from "@/interfaces/api";
+import { AnimatePresence } from "framer-motion";
+
+// Components
+import Header from "@/components/Main/Header";
+import { HeroSection } from "@/components/Main/HeroSection";
+import Footer from "@/components/Main/Footer";
+
+import CartDialog from "@/components/Pizzas/CartDialog";
+import OrderDialog from "@/components/Pizzas/OrderDialog";
+import ArmarPedido from "@/components/Pedidos/ArmarPedido";
+import CombosSection from "@/components/Main/ComboSection";
+import { PizzaCard } from "@/components/Pizzas/PizzaCard";
+import ArmarCombo from "@/components/Combos/ArmarCombo";
+
+// Types
+interface OrderData {
+  name: string;
+  address: string;
+  phone: string;
+  specialInstructions: string;
+  rating: number;
+  desiredTime: string;
+}
 
 export default function Home() {
+  // State
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [isComboDialogOpen, setIsComboDialogOpen] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState<Combo | null>(null);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
-  const [orderData, setOrderData] = useState({
+  const [orderData, setOrderData] = useState<OrderData>({
     name: "",
     address: "",
     phone: "",
@@ -29,52 +43,43 @@ export default function Home() {
     rating: 0,
     desiredTime: "",
   });
-
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const [combos, setCombos] = useState<Combo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPizzas = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const fetchedPizzas = await api.pizza.list();
+        const [fetchedPizzas, fetchedCombos] = await Promise.all([
+          api.pizza.list(),
+          api.pizza.combos(),
+        ]);
         setPizzas(fetchedPizzas);
+        setCombos(fetchedCombos);
       } catch (error) {
-        console.error("Error al obtener las pizzas:", error);
+        console.error("Error al obtener datos:", error);
         setError(
-          "No se pudieron cargar las pizzas. Por favor, intente de nuevo más tarde."
+          "No se pudieron cargar los datos. Por favor, intente de nuevo más tarde."
         );
       } finally {
         setIsLoading(false);
       }
     };
 
-    const fetchCombos = async () => {
-      try {
-        const combosData: Combo[] = await api.pizza.combos();
-        setCombos(combosData);
-      } catch (error) {
-        console.error("Error al obtener los combos:", error);
-        setError(
-          "No se pudieron cargar los combos. Por favor, intente de nuevo más tarde."
-        );
-      }
-    };
-
-    fetchPizzas();
-    fetchCombos();
+    fetchData();
   }, []);
 
-  const addToCart = (pizza: Pizza) => {
+  // Cart functions
+  const addToCart = useCallback((pizza: Pizza) => {
     setCart((prevCart) => ({
       ...prevCart,
       [pizza.id]: (prevCart[pizza.id] || 0) + 1,
     }));
-  };
+  }, []);
 
-  const removeFromCart = (pizzaId: number) => {
+  const removeFromCart = useCallback((pizzaId: number) => {
     setCart((prevCart) => {
       const newCart = { ...prevCart };
       if (newCart[pizzaId] > 1) {
@@ -84,14 +89,28 @@ export default function Home() {
       }
       return newCart;
     });
-  };
+  }, []);
 
-  const addToCartCombo = (comboName: string, pizzas: Pizza[], specialPrice: number) => {
-    setSelectedCombo({ comboName, specialPrice, pizzaIds: pizzas.map(pizza => pizza.id), originalPrice: pizzas.reduce((total, pizza) => total + pizza.price, 0) });
-    setIsComboDialogOpen(true);
-    setIsCartOpen(false);
-  };
+  const clearCart = useCallback(() => {
+    setCart({});
+  }, []);
 
+  // Combo functions
+  const addToCartCombo = useCallback(
+    (comboName: string, pizzas: Pizza[], specialPrice: number) => {
+      setSelectedCombo({
+        comboName,
+        specialPrice,
+        pizzaIds: pizzas.map((pizza) => pizza.id),
+        originalPrice: pizzas.reduce((total, pizza) => total + pizza.price, 0),
+      });
+      setIsComboDialogOpen(true);
+      setIsCartOpen(false);
+    },
+    []
+  );
+
+  // Cart calculations
   const getTotalItems = useCallback(() => {
     return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   }, [cart]);
@@ -105,22 +124,38 @@ export default function Home() {
       .toFixed(2);
   }, [cart, pizzas]);
 
+  // Form handling
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setOrderData((prevState) => ({ ...prevState, [name]: value }));
+    setOrderData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
-  const handleWhatsAppClick = async (): Promise<{ success: boolean }> => {
-    const cartItems = Object.entries(cart)
-      .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-        return pizza
-          ? `${quantity}x ${pizza.name}`
-          : `${quantity}x (Pizza no encontrada)`;
-      })
-      .join(", ");
+  const handleWhatsAppClick = useCallback(async (): Promise<{
+    success: boolean;
+  }> => {
+    // Construcción del mensaje
+    let cartItems = "";
+    let total = 0;
+
+    if (selectedCombo) {
+      cartItems = `1x ${selectedCombo.comboName}`;
+      total = selectedCombo.specialPrice;
+    } else {
+      cartItems = Object.entries(cart)
+        .map(([pizzaId, quantity]) => {
+          const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+          return pizza
+            ? `${quantity}x ${pizza.name}`
+            : `${quantity}x (Pizza no encontrada)`;
+        })
+        .join(", ");
+      total = parseFloat(getTotalPrice());
+    }
 
     const message = `Hola, me gustaría ordenar:\n${cartItems}\nTotal: $${getTotalPrice()}\nNombre: ${
       orderData.name
@@ -128,13 +163,13 @@ export default function Home() {
       orderData.phone
     }\nHora deseada: ${orderData.desiredTime}`;
 
-    // Enviar a WhatsApp
+    // Envío a WhatsApp
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
 
-    // Enviar a Google Sheets
+    // Envío a Google Sheets
     const formUrl =
       "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
     const formData = new FormData();
@@ -145,45 +180,40 @@ export default function Home() {
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
     formData.append("entry.1789182107", cartItems);
-    formData.append("entry.849798555", getTotalPrice()); 
+    formData.append("entry.849798555", getTotalPrice());
 
     try {
-      await fetch(formUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: formData,
-      });
+      await fetch(formUrl, { method: "POST", mode: "no-cors", body: formData });
       console.log("Datos enviados a Google Sheets");
     } catch (error) {
       console.error("Error al enviar datos a Google Sheets:", error);
     }
 
-    // Cerrar el modal y limpiar el carrito
     setIsOrderDialogOpen(false);
     setCart({});
     return { success: true };
-  };
+  }, [cart, pizzas, orderData, getTotalPrice, selectedCombo]);
 
-  const handleOrderDialogOpen = () => {
+  const handleOrderDialogOpen = useCallback(() => {
     setIsOrderDialogOpen(true);
     setIsCartOpen(false);
-  };
+  }, []);
 
   const handleOrderConfirm = async () => {
-    setIsOrderDialogOpen(false);
-    setCart({});
+    const result = await handleWhatsAppClick();
+    if (result.success) {
+      clearCart();
+      setIsOrderDialogOpen(false);
+    }
   };
 
-  const clearCart = () => {
-    setCart({});
-  };
-
-  const scrollToSection = (section: string) => {
+  // UI helpers
+  const scrollToSection = useCallback((section: string) => {
     const element = document.getElementById(section);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
-  };
+  }, []);
 
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>{error}</div>;
@@ -207,7 +237,10 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 justify-items-center">
               {pizzas.map((pizza) => (
-                <div key={pizza.id} className="flex justify-center items-center">
+                <div
+                  key={pizza.id}
+                  className="flex justify-center items-center"
+                >
                   <PizzaCard pizza={pizza} addToCart={addToCart} />
                 </div>
               ))}
@@ -215,7 +248,7 @@ export default function Home() {
           </div>
         </section>
         <section id="combos">
-          <CombosSection addToCart={addToCartCombo} clearCart={clearCart}/>
+        <CombosSection combos={combos} clearCart={clearCart} />
         </section>
         <section id="armar-pedido">
           <ArmarPedido
@@ -256,20 +289,6 @@ export default function Home() {
             pizzas={pizzas}
             clearCart={clearCart}
             handleOrderConfirm={handleOrderConfirm}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {selectedCombo && (
-          <ComboDialog
-            open={isComboDialogOpen}
-            onOpenChange={setIsComboDialogOpen}
-            combo={selectedCombo}
-            orderData={orderData}
-            handleWhatsAppClick={async () => ({ success: true })}
-            handleOrderConfirm={async () => {}}
-            clearCart={clearCart}
-            allPizzas={pizzas}
           />
         )}
       </AnimatePresence>

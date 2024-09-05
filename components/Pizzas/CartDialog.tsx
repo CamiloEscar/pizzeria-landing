@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pizza } from "../interfaces/pizza";
+import { Pizza } from "../../interfaces/pizza";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 
@@ -34,7 +34,8 @@ const CartDialog: React.FC<CartDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent aria-describedby="dialog-description" className="sm:max-w-[500px]">
+      <p id="dialog-description">Este es el contenido del diálogo.</p>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-red-800">
             Tu carrito

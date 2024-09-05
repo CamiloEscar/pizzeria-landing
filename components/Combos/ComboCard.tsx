@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Pizza } from "../interfaces/pizza";
+import { Pizza } from "../../interfaces/pizza";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 
 interface ComboCardProps {
@@ -10,7 +10,6 @@ interface ComboCardProps {
   pizzas: Pizza[];
   specialPrice: number;
   originalPrice: number;
-  addToCart: (comboName: string, pizzas: Pizza[], specialPrice: number) => void; // Cambia la firma
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({
@@ -18,7 +17,6 @@ const ComboCard: React.FC<ComboCardProps> = ({
   pizzas,
   specialPrice,
   originalPrice,
-  addToCart,
 }) => {
   const discount = Math.round(
     ((originalPrice - specialPrice) / originalPrice) * 100
@@ -28,13 +26,9 @@ const ComboCard: React.FC<ComboCardProps> = ({
     .map((pizza) => `url(${pizza.image})`)
     .join(", ");
 
-  const handleAddToCart = () => {
-    addToCart(comboName, pizzas, specialPrice); // Llama a addToCart con los detalles del combo
-  };
-
   return (
     <motion.div
-      className="relative bg-white rounded-xl shadow-lg overflow-hidden group"
+      className="relative bg-white rounded-xl shadow-lg overflow-hidden group cursor-pointer"
       whileHover={{ scale: 1.03 }}
       transition={{ duration: 0.3 }}
     >
@@ -54,8 +48,6 @@ const ComboCard: React.FC<ComboCardProps> = ({
           transition={{ duration: 1, repeat: Infinity }}
         >
           {discount}% OFF
-          <div className="absolute top-0 left-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-red-600 border-t-transparent border-l-transparent border-r-transparent transform rotate-45 translate-x-1/2 translate-y-1/2 z-10" />
-          <div className="absolute top-0 left-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-yellow-300 border-t-transparent border-l-transparent border-r-transparent transform rotate-45 translate-x-1/2 translate-y-1/2 -z-10" />
         </motion.div>
       </div>
 
@@ -92,15 +84,14 @@ const ComboCard: React.FC<ComboCardProps> = ({
             </div>
           </div>
           <Button
-            onClick={handleAddToCart}
             className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-full transition-all duration-300 text-sm font-semibold flex items-center justify-center group overflow-hidden relative"
           >
             <span className="group-hover:-translate-y-full transition-transform duration-300">
-              Add to Cart
+              Buy Now
             </span>
             <span className="absolute flex items-center justify-center w-full h-full translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <ShoppingCart size={20} className="mr-2" />
-              Add
+              <ShoppingBag size={20} className="mr-2" />
+              Purchase
             </span>
           </Button>
         </div>

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pizza } from "@/interfaces/pizza";
-import SmallPizzaCard from "@/components/SmallPizzaCard";
+import SmallPizzaCard from "@/components/Pedidos/SmallPizzaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Pizza } from "../interfaces/pizza";
+import { Pizza } from "../../interfaces/pizza";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface OrderDialogProps {
@@ -63,6 +63,10 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   };
 
   const handleConfirmOrder = async () => {
+    if (!orderData.name || !orderData.address || !orderData.phone) {
+      alert("Por favor, completa todos los campos requeridos.");
+      return;
+    }
     setIsLoading(true);
     if (handleOrderConfirm) {
       await handleOrderConfirm();
@@ -112,7 +116,10 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
           >
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-red-800">
-                Detalles del pedido
+                {currentStage === 1 ? 'Detalles del pedido' : 
+                 currentStage === 2 ? 'Resumen del pedido' : 
+                 currentStage === 3 ? '¡Pedido confirmado!' : 
+                 '¡Listo!'}
               </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -300,10 +307,8 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <AnimatePresence mode="wait">
-          {renderStage()}
-        </AnimatePresence>
+      <DialogContent aria-labelledby="dialog-title" className="sm:max-w-[500px]">
+        {renderStage()}
       </DialogContent>
     </Dialog>
   );

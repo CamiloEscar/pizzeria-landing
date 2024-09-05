@@ -11,9 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Combo } from "../interfaces/Combo";
+import { Pizza } from "../interfaces/pizza";
 import { motion, AnimatePresence } from "framer-motion";
 
-interface OrderComboDialogProps {
+interface OrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -26,46 +27,56 @@ interface OrderComboDialogProps {
     rating: number;
     desiredTime: string;
   };
-  combo: Combo; // Solo con Combo
+  combo?: Combo | null;
+  pizzas?: Pizza[];
   clearCart: () => void;
   handleOrderConfirm: () => Promise<void>;
 }
 
-const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
+const OrderDialog: React.FC<OrderDialogProps> = ({
   open,
   onOpenChange,
   handleInputChange,
   handleWhatsAppClick,
   orderData,
   combo,
+  pizzas,
   clearCart,
   handleOrderConfirm,
 }) => {
   const [currentStage, setCurrentStage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getTotalPrice = () => {
-    return combo ? combo.specialPrice.toFixed(2) : "0.00";
-  };
+  const getTotalPrice = () => combo ? combo.specialPrice.toFixed(2) : pizzas?.reduce((total, pizza) => total + pizza.price, 0).toFixed(2) || "0.00";
 
   const handleConfirmOrder = async () => {
     setIsLoading(true);
-    if (handleOrderConfirm) {
-      await handleOrderConfirm();
+    try {
+      if (handleOrderConfirm) {
+        await handleOrderConfirm();
+      }
+      setCurrentStage(3);
+    } catch (error) {
+      alert("Hubo un problema al confirmar el pedido. Inténtalo de nuevo.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-    setCurrentStage(3);
   };
 
   const handleWhatsAppConfirm = async () => {
     setIsLoading(true);
-    const result = await handleWhatsAppClick();
-    setIsLoading(false);
-    if (result.success) {
-      setCurrentStage(4);
-      clearCart(); // Puedes eliminar esta línea si no es necesario
-    } else {
-      alert("Hubo un problema al enviar el mensaje de WhatsApp. Por favor, inténtalo de nuevo.");
+    try {
+      const result = await handleWhatsAppClick();
+      if (result.success) {
+        setCurrentStage(4);
+        clearCart();
+      } else {
+        alert("Hubo un problema al enviar el mensaje de WhatsApp. Por favor, inténtalo de nuevo.");
+      }
+    } catch (error) {
+      alert("Hubo un problema al enviar el mensaje de WhatsApp. Inténtalo de nuevo.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,8 +84,8 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
     <div className="bg-gray-100 p-4 rounded-lg mt-4">
       <h3 className="text-lg font-bold mb-2">Resumen de la orden</h3>
       <div className="flex justify-between items-center mb-2">
-        <span>{combo.comboName}</span>
-        <span>${combo.specialPrice.toFixed(2)}</span>
+        <span>{combo ? combo.comboName : pizzas?.map(pizza => pizza.name).join(', ')}</span>
+        <span>${getTotalPrice()}</span>
       </div>
       <div className="border-t border-gray-300 mt-2 pt-2 font-bold flex justify-between">
         <span>Total:</span>
@@ -93,15 +104,13 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
+              <DialogTitle id="dialog-title" className="text-2xl font-bold text-red-800">
                 Detalles del pedido
               </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nombre
-                </Label>
+                <Label htmlFor="name" className="text-right">Nombre</Label>
                 <Input
                   id="name"
                   name="name"
@@ -112,9 +121,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">
-                  Dirección
-                </Label>
+                <Label htmlFor="address" className="text-right">Dirección</Label>
                 <Input
                   id="address"
                   name="address"
@@ -125,9 +132,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Teléfono
-                </Label>
+                <Label htmlFor="phone" className="text-right">Teléfono</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -138,9 +143,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="specialInstructions" className="text-right">
-                  Instrucciones especiales
-                </Label>
+                <Label htmlFor="specialInstructions" className="text-right">Instrucciones especiales</Label>
                 <Textarea
                   id="specialInstructions"
                   name="specialInstructions"
@@ -151,9 +154,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="desiredTime" className="text-right">
-                  Hora deseada
-                </Label>
+                <Label htmlFor="desiredTime" className="text-right">Hora deseada</Label>
                 <Input
                   id="desiredTime"
                   name="desiredTime"
@@ -183,7 +184,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
+              <DialogTitle id="dialog-title" className="text-2xl font-bold text-red-800">
                 Resumen del pedido
               </DialogTitle>
             </DialogHeader>
@@ -221,7 +222,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-green-600">
+              <DialogTitle id="dialog-title" className="text-2xl font-bold text-green-600">
                 ¡Pedido confirmado!
               </DialogTitle>
             </DialogHeader>
@@ -255,7 +256,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-green-600">
+              <DialogTitle id="dialog-title" className="text-2xl font-bold text-green-600">
                 ¡Listo!
               </DialogTitle>
             </DialogHeader>
@@ -282,7 +283,7 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent aria-labelledby="dialog-title" className="sm:max-w-[500px]">
         <AnimatePresence mode="wait">
           {renderStage()}
         </AnimatePresence>
@@ -291,4 +292,4 @@ const OrderComboDialog: React.FC<OrderComboDialogProps> = ({
   );
 };
 
-export default OrderComboDialog;
+export default OrderDialog;

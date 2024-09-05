@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Pizza } from "../interfaces/pizza";
+import { Pizza } from "../../interfaces/pizza";
 import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart } from "lucide-react";
 import Image from "next/image";
