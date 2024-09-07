@@ -10,7 +10,6 @@ import { AnimatePresence } from "framer-motion";
 import Header from "@/components/Main/Header";
 import { HeroSection } from "@/components/Main/HeroSection";
 import Footer from "@/components/Main/Footer";
-
 import CartDialog from "@/components/Pizzas/CartDialog";
 import OrderDialog from "@/components/Pizzas/OrderDialog";
 import ArmarPedido from "@/components/Pedidos/ArmarPedido";
