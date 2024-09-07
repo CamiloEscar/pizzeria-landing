@@ -21,7 +21,7 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
 }) => {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-xl shadow-lg w-full max-w-sm h-[400px] group m-4 flex flex-col mx-auto"
+    className="relative overflow-hidden rounded-xl shadow-lg w-full max-w-sm h-[400px] group flex flex-col mx-auto my-6" // Cambié `m-4` por `my-6` para márgenes superiores e inferiores
       whileHover={{ scale: 1.03 }}
       transition={{ duration: 0.3 }}
     >
@@ -74,7 +74,7 @@ const SmallPizzaCard: React.FC<SmallPizzaCardProps> = ({
             </div>
           </div>
 
-          {/* Sección del selector */}
+           {/* Sección del selector */}
           <div className="flex items-center justify-between border-t border-gray-200 pt-4 mt-2">
             {isSelected ? (
               <div className="flex items-center">

@@ -32,6 +32,12 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
     desiredTime: "",
   });
 
+  const [errors, setErrors] = useState({
+    name: false,
+    address: false,
+    phone: false,
+  });
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -40,6 +46,18 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
       ...prevState,
       [name]: value,
     }));
+    // Limpiar los errores a medida que el usuario escribe
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      name: !orderData.name,
+      address: !orderData.address,
+      phone: !orderData.phone,
+    };
+    setErrors(newErrors);
+    return !newErrors.name && !newErrors.address && !newErrors.phone;
   };
 
   const handleWhatsAppClick = async () => {
@@ -64,11 +82,13 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
   };
 
   const handleOrderConfirm = async () => {
-    const result = await handleWhatsAppClick();
-    if (result.success) {
-      clearCart();
-      onOrderConfirm();
-      onOpenChange(false);
+    if (validateForm()) {
+      const result = await handleWhatsAppClick();
+      if (result.success) {
+        clearCart();
+        onOrderConfirm();
+        onOpenChange(false);
+      }
     }
   };
 
@@ -88,7 +108,7 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
               name="name"
               value={orderData.name}
               onChange={handleInputChange}
-              className="col-span-3"
+              className={`col-span-3 ${errors.name ? "border-red-500" : ""}`}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -100,7 +120,7 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
               name="address"
               value={orderData.address}
               onChange={handleInputChange}
-              className="col-span-3"
+              className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -112,7 +132,7 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
               name="phone"
               value={orderData.phone}
               onChange={handleInputChange}
-              className="col-span-3"
+              className={`col-span-3 ${errors.phone ? "border-red-500" : ""}`}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -141,7 +161,9 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
             />
           </div>
         </div>
-        <Button onClick={handleOrderConfirm}>Confirmar Orden</Button>
+        <Button onClick={handleOrderConfirm} className="mt-4 w-full bg-green-600 hover:bg-green-700">
+          Confirmar Orden
+        </Button>
       </DialogContent>
     </Dialog>
   );

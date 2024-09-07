@@ -128,12 +128,13 @@ const Footer: React.FC = () => {
                 variant="ghost"
                 size="icon"
                 className="text-white hover:text-red-600 transition-colors"
+                
               >
                 <Instagram size={24} />
               </Button>
             </div>
             <div className="text-center md:text-right text-gray-400">
-              <p>&copy; {new Date().getFullYear()} Camilo Escar. Todos los derechos reservados.</p>
+              <p>&copy; {new Date().getFullYear()} | Contacto: camiloescar1995@gmail.com</p>
             </div>
           </div>
         </div>

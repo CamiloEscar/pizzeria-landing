@@ -214,22 +214,22 @@ export default function Home() {
           <HeroSection />
         </section>
         <section id="productos" className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
-              Menú de Pizzas
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0 justify-items-center">
-              {pizzas.map((pizza) => (
-                <div
-                  key={pizza.id}
-                  className="flex justify-center items-center"
-                >
-                  <PizzaCard pizza={pizza} addToCart={addToCart} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+  <div className="container mx-auto px-4">
+    <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
+      Menú de Pizzas
+    </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[72px] justify-items-center">
+      {pizzas.map((pizza) => (
+        <div
+          key={pizza.id}
+          className="flex justify-center items-center"
+        >
+          <PizzaCard pizza={pizza} addToCart={addToCart} />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
         <section id="combos">
         <CombosSection combos={combos} clearCart={clearCart} />
         </section>

@@ -6,6 +6,9 @@ import SmallPizzaCard from "@/components/Pedidos/SmallPizzaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { Star, ShoppingCart, Minus, Plus, Trash } from "lucide-react";
 
 interface ArmarPedidoProps {
   pizzas: Pizza[];
@@ -267,7 +270,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
           </div>
 
           {/* Tarjetas de pizza en cuadrícula */}
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
             {pizzas.map(pizza => (
               <SmallPizzaCard
                 key={pizza.id}

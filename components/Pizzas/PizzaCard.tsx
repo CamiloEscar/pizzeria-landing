@@ -13,7 +13,7 @@ interface PizzaCardProps {
 export const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, addToCart }) => {
   return (
     <motion.div
-      className="relative overflow-hidden rounded-xl shadow-lg w-80 h-[400px] group m-4"
+      className="relative overflow-hidden rounded-xl shadow-lg w-80 h-[400px] group m-18" 
       whileHover={{ scale: 1.03 }}
       transition={{ duration: 0.3 }}
     >
