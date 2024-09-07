@@ -87,11 +87,11 @@ const ComboCard: React.FC<ComboCardProps> = ({
             className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-full transition-all duration-300 text-sm font-semibold flex items-center justify-center group overflow-hidden relative"
           >
             <span className="group-hover:-translate-y-full transition-transform duration-300">
-              Buy Now
+              Compra ahora
             </span>
             <span className="absolute flex items-center justify-center w-full h-full translate-y-full group-hover:translate-y-0 transition-transform duration-300">
               <ShoppingBag size={20} className="mr-2" />
-              Purchase
+              Comprar
             </span>
           </Button>
         </div>
