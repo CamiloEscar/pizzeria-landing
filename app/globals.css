@@ -95,7 +95,7 @@ button {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/La-de-Rucula.jpeg'); /* Ruta a tu imagen de pizza */
+  background-image: url('/La-de-Rucula.webp'); /* Ruta a tu imagen de pizza */
   background-size: cover; /* Ajusta el tamaño de la imagen para cubrir toda la página */
   background-position: center; /* Centra la imagen */
   background-repeat: no-repeat; /* Evita que la imagen se repita */

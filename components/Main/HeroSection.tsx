@@ -19,7 +19,7 @@ export const HeroSection = () => {
     >
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/La-de-Rucula.jpeg')" }}
+        style={{ backgroundImage: "url('/images/La-de-Rucula.webp')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90"></div>
       </div>
