@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -66,29 +66,54 @@ const Header: React.FC<HeaderProps> = ({ scrollToSection, getTotalItems, setIsCa
   );
 };
 
-const Logo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => (
-  <motion.div 
-    className="relative flex items-center justify-center w-16 h-16 cursor-pointer"
-    initial={{ opacity: 0, y: -20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    onClick={onOpenStories}
-  >
-    <div className="relative flex items-center justify-center w-16 h-16">
-      <div 
-        className="absolute w-18 h-18 rounded-full p-1"
-        style={{ 
-          background: 'conic-gradient(from 0deg at 50% 50%, yellow, red, green, yellow)', 
-          padding: '4px'
-        }}
-      >
-        <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
-          <Image src="/images/logo-header.png" alt="Logo" width={76} height={76} className="object-contain relative z-10" />
+const Logo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => {
+  const [showNotification, setShowNotification] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowNotification(false);
+    }, 5000); // Hide the notification after 5 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <motion.div 
+      className="relative flex items-center justify-center w-16 h-16 cursor-pointer"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      onClick={onOpenStories}
+    >
+      <div className="relative flex items-center justify-center w-16 h-16">
+        <div 
+          className="absolute w-18 h-18 rounded-full p-1"
+          style={{ 
+            background: 'conic-gradient(from 0deg at 50% 50%, yellow, red, green, yellow)', 
+            padding: '4px'
+          }}
+        >
+          <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
+            <Image src="/images/logo-header.png" alt="Logo" width={76} height={76} className="object-contain relative z-10" />
+          </div>
         </div>
       </div>
-    </div>
-  </motion.div>
-);
+      <AnimatePresence>
+        {showNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-2 py-1 rounded-full shadow-lg"
+          >
+            Ver Destacadas!
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 const DesktopNavigation: React.FC<{ navItems: Array<{ name: string, section: string }>, onItemClick: (section: string) => void }> = ({ navItems, onItemClick }) => (
   <nav className="hidden md:flex flex-grow justify-center items-center space-x-4">

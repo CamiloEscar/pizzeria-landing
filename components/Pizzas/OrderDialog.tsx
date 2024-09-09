@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Pizza } from "../../interfaces/pizza";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface OrderDialogProps {
   open: boolean;
@@ -45,6 +45,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
 }) => {
   const [currentStage, setCurrentStage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [deliveryOption, setDeliveryOption] = useState("Enviar"); // Nueva opción de entrega o retiro
 
   const getCartItems = () => {
     return Object.entries(cart).map(([pizzaId, quantity]) => {
@@ -63,7 +64,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   };
 
   const handleConfirmOrder = async () => {
-    if (!orderData.name || !orderData.address || !orderData.phone) {
+    if (!orderData.name || !orderData.phone || (deliveryOption === "Enviar" && !orderData.address)) {
       alert("Por favor, completa todos los campos requeridos.");
       return;
     }
@@ -116,10 +117,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
           >
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-red-800">
-                {currentStage === 1 ? 'Detalles del pedido' : 
-                 currentStage === 2 ? 'Resumen del pedido' : 
-                 currentStage === 3 ? '¡Pedido confirmado!' : 
-                 '¡Listo!'}
+                Detalles del pedido
               </DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -146,7 +144,8 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
                   className="col-span-3"
                   value={orderData.address}
                   onChange={handleInputChange}
-                  required
+                  disabled={deliveryOption === "Retirar"}
+                  required={deliveryOption === "Enviar"}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -188,6 +187,29 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
                   onChange={handleInputChange}
                 />
               </div>
+
+              {/* Opción de Enviar o Retirar */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="deliveryOption" className="text-right">
+                  Opción de entrega
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex space-x-4">
+                    <Button
+                      variant={deliveryOption === "Enviar" ? "default" : "outline"}
+                      onClick={() => setDeliveryOption("Enviar")}
+                    >
+                      Enviar
+                    </Button>
+                    <Button
+                      variant={deliveryOption === "Retirar" ? "default" : "outline"}
+                      onClick={() => setDeliveryOption("Retirar")}
+                    >
+                      Retirar
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
             <OrderSummary />
             <DialogFooter>
@@ -215,10 +237,11 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             <div className="py-4">
               <h2 className="text-lg font-bold">Detalles del pedido</h2>
               <p><strong>Nombre:</strong> {orderData.name}</p>
-              <p><strong>Dirección:</strong> {orderData.address}</p>
+              <p><strong>Dirección:</strong> {deliveryOption === "Enviar" ? orderData.address : "No aplica"}</p>
               <p><strong>Teléfono:</strong> {orderData.phone}</p>
               <p><strong>Instrucciones especiales:</strong> {orderData.specialInstructions || 'Ninguna'}</p>
               <p><strong>Hora deseada:</strong> {orderData.desiredTime || 'No especificada'}</p>
+              <p><strong>Opción de entrega:</strong> {deliveryOption}</p>
             </div>
             <OrderSummary />
             <DialogFooter>
@@ -231,9 +254,9 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
               </Button>
               <Button
                 onClick={() => setCurrentStage(1)}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 mt-2"
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white mt-2"
               >
-                Volver
+                Editar pedido
               </Button>
             </DialogFooter>
           </motion.div>
@@ -246,28 +269,23 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-green-600">
-                ¡Pedido confirmado!
+              <DialogTitle className="text-2xl font-bold text-red-800">
+                Confirmación del pedido
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p>Tu pedido ha sido realizado exitosamente.</p>
-              <OrderSummary />
-              <p className="mt-4">¿Deseas recibir los detalles por WhatsApp?</p>
+              <h2 className="text-lg font-bold">Enviar pedido por WhatsApp</h2>
+              <p>
+                Haz clic en el botón para enviar tu pedido a través de WhatsApp.
+              </p>
             </div>
             <DialogFooter>
               <Button
                 onClick={handleWhatsAppConfirm}
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
                 disabled={isLoading}
               >
                 {isLoading ? 'Enviando...' : 'Enviar por WhatsApp'}
-              </Button>
-              <Button
-                onClick={() => onOpenChange(false)}
-                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 mt-2"
-              >
-                Cerrar
               </Button>
             </DialogFooter>
           </motion.div>
@@ -280,36 +298,32 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             exit={{ opacity: 0 }}
           >
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-green-600">
-                ¡Listo!
+              <DialogTitle className="text-2xl font-bold text-red-800">
+                ¡Pedido completado!
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p>Los detalles de tu pedido han sido enviados por WhatsApp.</p>
-              <OrderSummary />
-              <p className="mt-4">Gracias por tu compra. ¡Buen provecho!</p>
+              <h2 className="text-lg font-bold">Gracias por tu pedido</h2>
+              <p>Tu pedido ha sido enviado exitosamente.</p>
             </div>
             <DialogFooter>
               <Button
-                onClick={() => {
-                  onOpenChange(false);
-                  setCurrentStage(1);
-                }}
+                onClick={() => onOpenChange(false)}
                 className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
               >
-                Finalizar
+                Cerrar
               </Button>
             </DialogFooter>
           </motion.div>
         );
+      default:
+        return null;
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-labelledby="dialog-title" className="sm:max-w-[500px]">
-        {renderStage()}
-      </DialogContent>
+      <DialogContent>{renderStage()}</DialogContent>
     </Dialog>
   );
 };

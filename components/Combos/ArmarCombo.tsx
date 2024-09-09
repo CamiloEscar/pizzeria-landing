@@ -30,6 +30,7 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
     phone: "",
     specialInstructions: "",
     desiredTime: "",
+    deliveryMethod: "Enviar", // Nueva opción para seleccionar
   });
 
   const [errors, setErrors] = useState({
@@ -39,21 +40,20 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setOrderData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
-    // Limpiar los errores a medida que el usuario escribe
     setErrors((prevErrors) => ({ ...prevErrors, [name]: false }));
   };
 
   const validateForm = () => {
     const newErrors = {
       name: !orderData.name,
-      address: !orderData.address,
+      address: orderData.deliveryMethod === "Enviar" && !orderData.address, // Solo validar dirección si es "Enviar"
       phone: !orderData.phone,
     };
     setErrors(newErrors);
@@ -70,10 +70,11 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
 Pizzas: ${pizzaNames}\n
 Precio: $${combo.specialPrice}\n
 Nombre: ${orderData.name}\n
-Dirección: ${orderData.address}\n
+${orderData.deliveryMethod === "Enviar" ? `Dirección: ${orderData.address}\n` : ""}
 Teléfono: ${orderData.phone}\n
 Hora deseada: ${orderData.desiredTime}\n
-Instrucciones especiales: ${orderData.specialInstructions}`;
+Instrucciones especiales: ${orderData.specialInstructions}\n
+Método de entrega: ${orderData.deliveryMethod}`;
 
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
@@ -112,17 +113,34 @@ Instrucciones especiales: ${orderData.specialInstructions}`;
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="address" className="text-right">
-              Dirección
+            <Label htmlFor="deliveryMethod" className="text-right">
+              Método de entrega
             </Label>
-            <Input
-              id="address"
-              name="address"
-              value={orderData.address}
+            <select
+              id="deliveryMethod"
+              name="deliveryMethod"
+              value={orderData.deliveryMethod}
               onChange={handleInputChange}
-              className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
-            />
+              className="col-span-3 border p-2 rounded"
+            >
+              <option value="Enviar">Enviar</option>
+              <option value="Retirar">Retirar</option>
+            </select>
           </div>
+          {orderData.deliveryMethod === "Enviar" && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="address" className="text-right">
+                Dirección
+              </Label>
+              <Input
+                id="address"
+                name="address"
+                value={orderData.address}
+                onChange={handleInputChange}
+                className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="phone" className="text-right">
               Teléfono

@@ -21,6 +21,7 @@ interface OrderData {
   name: string;
   address: string;
   phone: string;
+  envioRetirar: string;
   specialInstructions: string;
   rating: number;
   desiredTime: string;
@@ -36,6 +37,7 @@ export default function Home() {
     name: "",
     address: "",
     phone: "",
+    envioRetirar: "false",
     specialInstructions: "",
     rating: 0,
     desiredTime: "",
@@ -159,6 +161,7 @@ export default function Home() {
     formData.append("entry.2020561029", orderData.name);
     formData.append("entry.1741915942", orderData.address);
     formData.append("entry.1517497244", orderData.phone);
+    formData.append("entry.1807112285", orderData.envioRetirar);
     formData.append("entry.1563818822", orderData.specialInstructions);
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
@@ -198,7 +201,7 @@ export default function Home() {
     }
   }, []);
 
-  if (isLoading) return <div>Cargando...</div>;
+  if (isLoading) return <div>Cargando Pizzas</div>;
   if (error) return <div>{error}</div>;
 
   return (

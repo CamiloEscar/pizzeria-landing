@@ -6,8 +6,8 @@ import SmallPizzaCard from "@/components/Pedidos/SmallPizzaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Star, ShoppingCart, Minus, Plus, Trash } from "lucide-react";
 
 interface ArmarPedidoProps {
@@ -18,8 +18,17 @@ interface ArmarPedidoProps {
   handleConfirmOrder: (
     cart: { [key: number]: number },
     date: string,
-    time: string
+    time: string,
+    orderDetails: OrderDetails
   ) => Promise<void>;
+}
+
+interface OrderDetails {
+  name: string;
+  address: string;
+  phone: string;
+  specialInstructions: string;
+  deliveryMethod: "delivery" | "pickup";
 }
 
 const ArmarPedido: React.FC<ArmarPedidoProps> = ({
@@ -33,45 +42,30 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [specialInstructions, setSpecialInstructions] = useState("");
-  const [whatsappNumber, setWhatsappNumber] = useState("3442475466");
+  const [orderDetails, setOrderDetails] = useState<OrderDetails>({
+    name: "",
+    address: "",
+    phone: "",
+    specialInstructions: "",
+    deliveryMethod: "delivery",
+  });
+  const [error, setError] = useState<string | null>(null);
 
-  const dateRef = useRef<HTMLInputElement>(null);
-  const timeRef = useRef<HTMLInputElement>(null);
-  const nameRef = useRef<HTMLInputElement>(null);
-  const addressRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const whatsappNumberRef = useRef<HTMLInputElement>(null);
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(e.target.value);
+  const formRefs = {
+    name: useRef<HTMLInputElement>(null),
+    address: useRef<HTMLInputElement>(null),
+    phone: useRef<HTMLInputElement>(null),
+    date: useRef<HTMLInputElement>(null),
+    time: useRef<HTMLInputElement>(null),
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedTime(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setOrderDetails(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(e.target.value);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(e.target.value);
-  };
-
-  const handleSpecialInstructionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setSpecialInstructions(e.target.value);
-  };
-
-  const handleWhatsappNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWhatsappNumber(e.target.value);
+  const handleDeliveryMethodChange = (value: "delivery" | "pickup") => {
+    setOrderDetails(prev => ({ ...prev, deliveryMethod: value }));
   };
 
   const addToArmarPedidoCart = (pizzaId: number) => {
@@ -95,58 +89,28 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
   const getTotalPrice = () => {
     return Object.entries(armarPedidoCart)
-      .map(([pizzaId, quantity]) => {
+      .reduce((sum, [pizzaId, quantity]) => {
         const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
-        return pizza ? pizza.price * quantity : 0;
-      })
-      .reduce((sum, price) => sum + price, 0)
+        return sum + (pizza ? pizza.price * quantity : 0);
+      }, 0)
       .toFixed(2);
   };
 
-  const submitFormToGoogleSheets = async () => {
-    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
-
-    const cartItems = Object.entries(armarPedidoCart)
-      .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
-        return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
-      })
-      .join(", ");
-
-    const formData = new FormData();
-    formData.append("entry.2020561029", name);
-    formData.append("entry.1741915942", address);
-    formData.append("entry.1517497244", phone);
-    formData.append("entry.1563818822", specialInstructions);
-    formData.append("entry.13111002", selectedDate);
-    formData.append("entry.195003812", selectedTime);
-    formData.append("entry.1789182107", cartItems);
-    formData.append("entry.849798555", getTotalPrice());
-
-    try {
-      const response = await fetch(formUrl, {
-        method: "POST",
-        mode: "no-cors",
-        body: formData,
-      });
-      console.log("Datos enviados a Google Sheets");
-      return { success: true };
-    } catch (error) {
-      console.error("Error al enviar datos a Google Sheets:", error);
-      return { success: false };
+  const validateForm = () => {
+    const requiredFields = ['name', 'phone', 'date', 'time'];
+    if (orderDetails.deliveryMethod === 'delivery') {
+      requiredFields.push('address');
     }
-  };
 
-  const sendWhatsAppMessage = () => {
-    const whatsappMessage = `Hola, me gustaría ordenar:\n${Object.entries(armarPedidoCart)
-      .map(([pizzaId, quantity]) => {
-        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
-        return pizza ? `${quantity}x ${pizza.name}` : `${quantity}x (Pizza no encontrada)`;
-      })
-      .join(", ")}\nTotal: $${getTotalPrice()}\nNombre: ${name}\nDirección: ${address}\nTeléfono: ${phone}\nHora deseada: ${selectedTime}\nInstrucciones especiales: ${specialInstructions}`;
-    const encodedMessage = encodeURIComponent(whatsappMessage);
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, "_blank");
+    for (const field of requiredFields) {
+      if (!orderDetails[field as keyof OrderDetails] && formRefs[field as keyof typeof formRefs]?.current) {
+        formRefs[field as keyof typeof formRefs].current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setError(`Por favor completa el campo: ${field}`);
+        return false;
+      }
+    }
+    setError(null);
+    return true;
   };
 
   const handleConfirmOrderClick = async () => {
@@ -154,15 +118,9 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
     setLoading(true);
     try {
-      const result = await submitFormToGoogleSheets();
-      if (result.success) {
-        sendWhatsAppMessage();
-        await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime);
-        setArmarPedidoCart({});
-        console.log("Pedido confirmado y WhatsApp enviado");
-      } else {
-        throw new Error("Failed to submit form");
-      }
+      await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime, orderDetails);
+      setArmarPedidoCart({});
+      alert("Pedido confirmado exitosamente");
     } catch (error) {
       console.error("Error:", error);
       alert("Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo.");
@@ -171,106 +129,128 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     }
   };
 
-  const validateForm = () => {
-    if (!name || !address || !phone || !selectedDate || !selectedTime) {
-      for (const ref of [nameRef, addressRef, phoneRef, dateRef, timeRef]) {
-        if (ref.current && !ref.current.value) {
-          ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
-          return false;
-        }
-      }
-    }
-    return true;
-  };
-
   return (
-    <Card className="p-4 md:p-6 bg-white rounded-lg shadow-md border border-gray-200">
+    <Card className="p-4 bg-white rounded-lg shadow-md border border-gray-200 mx-auto w-full">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold mb-4 text-gray-800 text-center">
-          Armar tu Pedido para Otro Día
+          Armar tu Pedido
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Formulario */}
-          <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-300">
-            <h3 className="text-lg font-semibold mb-2">Detalles del Pedido</h3>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">Detalles del Pedido</h3>
+            {error && (
+              <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
+                {error}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">Nombre:</Label>
                 <Input
                   id="name"
+                  name="name"
                   type="text"
-                  value={name}
-                  onChange={handleNameChange}
-                  ref={nameRef}
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address" className="text-sm font-medium">Dirección:</Label>
-                <Input
-                  id="address"
-                  type="text"
-                  value={address}
-                  onChange={handleAddressChange}
-                  ref={addressRef}
-                  className="w-full"
+                  value={orderDetails.name}
+                  onChange={handleInputChange}
+                  ref={formRefs.name}
+                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium">Teléfono:</Label>
                 <Input
                   id="phone"
+                  name="phone"
                   type="tel"
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  ref={phoneRef}
-                  className="w-full"
+                  value={orderDetails.phone}
+                  onChange={handleInputChange}
+                  ref={formRefs.phone}
+                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="specialInstructions" className="text-sm font-medium">Descripción:</Label>
-                <Textarea
-                  id="specialInstructions"
-                  value={specialInstructions}
-                  onChange={handleSpecialInstructionsChange}
-                  className="w-full"
-                />
+              <div className="space-y-2 col-span-2">
+                <Label className="text-sm font-medium">Método de entrega:</Label>
+                <RadioGroup
+                  defaultValue="delivery"
+                  onValueChange={handleDeliveryMethodChange}
+                  className="flex space-x-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="delivery" id="delivery" />
+                    <Label htmlFor="delivery">Entrega a domicilio</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pickup" id="pickup" />
+                    <Label htmlFor="pickup">Retirar en local</Label>
+                  </div>
+                </RadioGroup>
               </div>
+              {orderDetails.deliveryMethod === 'delivery' && (
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="address" className="text-sm font-medium">Dirección:</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    type="text"
+                    value={orderDetails.address}
+                    onChange={handleInputChange}
+                    ref={formRefs.address}
+                    className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="date" className="text-sm font-medium">Fecha de entrega:</Label>
                 <Input
                   id="date"
+                  name="date"
                   type="date"
                   value={selectedDate}
-                  onChange={handleDateChange}
-                  ref={dateRef}
-                  className="w-full"
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  ref={formRefs.date}
+                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time" className="text-sm font-medium">Hora deseada:</Label>
                 <Input
                   id="time"
+                  name="time"
                   type="time"
                   value={selectedTime}
-                  onChange={handleTimeChange}
-                  ref={timeRef}
-                  className="w-full"
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                  ref={formRefs.time}
+                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="specialInstructions" className="text-sm font-medium">Instrucciones especiales:</Label>
+                <Textarea
+                  id="specialInstructions"
+                  name="specialInstructions"
+                  value={orderDetails.specialInstructions}
+                  onChange={handleInputChange}
+                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
             <div className="flex justify-between items-center mt-4">
-              <span className="text-lg font-semibold">Total: ${getTotalPrice()}</span>
-              <Button onClick={handleConfirmOrderClick} disabled={loading}>
+              <span className="text-lg font-semibold text-gray-800">Total: ${getTotalPrice()}</span>
+              <Button
+                onClick={handleConfirmOrderClick}
+                disabled={loading}
+                className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 transition"
+              >
                 {loading ? "Procesando..." : "Confirmar Pedido"}
               </Button>
             </div>
           </div>
 
           {/* Tarjetas de pizza en cuadrícula */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
             {pizzas.map(pizza => (
               <SmallPizzaCard
                 key={pizza.id}
