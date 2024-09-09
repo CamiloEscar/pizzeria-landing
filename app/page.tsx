@@ -107,10 +107,12 @@ export default function Home() {
     setOrderData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleWhatsAppClick = useCallback(async (): Promise<{ success: boolean }> => {
+  const handleWhatsAppClick = useCallback(async (): Promise<{
+    success: boolean;
+  }> => {
     let cartItems = "";
     let total = 0;
-  
+
     if (selectedCombo) {
       cartItems = `1x ${selectedCombo.comboName}`;
       total = selectedCombo.specialPrice;
@@ -125,18 +127,19 @@ export default function Home() {
         .join(", ");
       total = parseFloat(getTotalPrice());
     }
-  
+
     const message = `Hola, me gustaría ordenar:\n${cartItems}\nTotal: $${getTotalPrice()}\nNombre: ${
       orderData.name
     }\nDirección: ${orderData.address}\nTeléfono: ${
       orderData.phone
-    }\nHora deseada: ${orderData.desiredTime
-    }\nPara: ${orderData.envioRetirar
-    }`;
-    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(message)}`;
+    }\nHora deseada: ${orderData.desiredTime}\nPara: ${orderData.envioRetirar}`;
+    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+      message
+    )}`;
     window.open(whatsappUrl, "_blank");
-  
-    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
+
+    const formUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
     const formData = new FormData();
     formData.append("entry.2020561029", orderData.name);
     formData.append("entry.1741915942", orderData.address);
@@ -147,25 +150,27 @@ export default function Home() {
     formData.append("entry.195003812", orderData.desiredTime);
     formData.append("entry.1789182107", cartItems);
     formData.append("entry.849798555", getTotalPrice());
-  
+
     console.log("Form Data:", formData);
-  
+
     try {
       const response = await fetch(formUrl, { method: "POST", body: formData });
       if (response.ok) {
         console.log("Datos enviados a Google Sheets");
       } else {
-        console.error("Error al enviar datos a Google Sheets:", response.statusText);
+        console.error(
+          "Error al enviar datos a Google Sheets:",
+          response.statusText
+        );
       }
     } catch (error) {
       console.error("Error al enviar datos a Google Sheets:", error);
     }
-  
+
     setIsOrderDialogOpen(false);
     setCart({});
     return { success: true };
   }, [cart, pizzas, orderData, getTotalPrice, selectedCombo]);
-  
 
   const handleOrderDialogOpen = useCallback(() => {
     setIsOrderDialogOpen(true);
@@ -259,4 +264,3 @@ export default function Home() {
     </div>
   );
 }
-

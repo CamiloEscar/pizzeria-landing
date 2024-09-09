@@ -1,79 +1,145 @@
-// app/armar-pedido/page.tsx
-"use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { Pizza } from '@/interfaces/pizza';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import SmallPizzaCard from '@/components/Pedidos/SmallPizzaCard';
+// import React, { useState, useEffect, useCallback } from "react";
+// import { Pizza } from "@/interfaces/pizza";
+// import api from "@/interfaces/api";
+// import Header from "@/components/Main/Header";
+// import Footer from "@/components/Main/Footer";
+// import LoadingState from "@/components/LoadingState";
+// import ArmarPedido from "@/components/Pedidos/ArmarPedido";
+// import { useCart } from "@/hooks/useCart"; // Hook personalizado para la lógica del carrito
 
-interface OrderDetails {
+// export default function ArmarPedidoPage() {
+//   const [pizzas, setPizzas] = useState<Pizza[]>([]);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const {
+//     cart,
+//     addToCart,
+//     removeFromCart,
+//     clearCart,
+//     getTotalItems,
+//     getTotalPrice,
+//     handleWhatsAppClick,
+//   } = useCart(pizzas);
+
+//   useEffect(() => {
+//     const fetchPizzas = async () => {
+//       try {
+//         setIsLoading(true);
+//         const fetchedPizzas = await api.pizza.list();
+//         setPizzas(fetchedPizzas);
+//       } catch (error) {
+//         setError("No se pudieron cargar los datos. Por favor, intente de nuevo más tarde.");
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchPizzas();
+//   }, []);
+
+//   const handleOrderConfirm = async () => {
+//     const result = await handleWhatsAppClick();
+//     if (result.success) {
+//       clearCart();
+//     }
+//   };
+
+//   if (isLoading) return <LoadingState />;
+//   if (error) return <div>{error}</div>;
+
+//   return (
+//     <div className="relative min-h-screen scroll-smooth md:scroll-auto">
+//       <Header
+//         scrollToSection={(section) => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
+//         getTotalItems={getTotalItems}
+//         setIsCartOpen={() => {}}
+//         isCartOpen={false}
+//       />
+//       <main className="pt-20">
+//         <section id="armar-pedido" className="py-16 bg-white">
+//           <div className="container mx-auto px-4">
+//           <ArmarPedido
+//               pizzas={pizzas}
+//               cart={cart}
+//               addToCart={(pizzaId: number) =>
+//                 addToCart(pizzas.find((p) => p.id === pizzaId)!)
+//               }
+//               removeFromCart={removeFromCart}
+//               handleConfirmOrder={handleOrderConfirm}
+//             />
+//           </div>
+//         </section>
+//         <Footer />
+//       </main>
+//     </div>
+//   );
+// }
+
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Pizza } from "@/interfaces/pizza";
+import api from "@/interfaces/api";
+import Header from "@/components/Main/Header";
+import Footer from "@/components/Main/Footer";
+import LoadingState from "@/components/LoadingState";
+import ArmarPedido from "@/components/Pedidos/ArmarPedido";
+
+interface OrderData {
   name: string;
   address: string;
   phone: string;
+  envioRetirar: string;
   specialInstructions: string;
-  deliveryMethod: "delivery" | "pickup";
+  rating: number;
+  desiredTime: string;
 }
 
-const ArmarPedidoPage: React.FC = () => {
-  const [pizzas, setPizzas] = useState<Pizza[]>([]);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
-  const [orderDetails, setOrderDetails] = useState<OrderDetails>({
+export default function ArmarPedidoPage() {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
+  const [cart, setCart] = useState<{ [key: number]: number }>({});
+  const [orderData, setOrderData] = useState<OrderData>({
     name: "",
     address: "",
     phone: "",
+    envioRetirar: "Enviar",
     specialInstructions: "",
-    deliveryMethod: "delivery",
+    rating: 0,
+    desiredTime: "",
   });
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const formRefs = {
-    name: useRef<HTMLInputElement>(null),
-    address: useRef<HTMLInputElement>(null),
-    phone: useRef<HTMLInputElement>(null),
-    date: useRef<HTMLInputElement>(null),
-    time: useRef<HTMLInputElement>(null),
-  };
-
   useEffect(() => {
-    // Fetch pizzas data from the server
-    const fetchPizzas = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/interfaces/pizza.ts'); // Cambia la URL a tu endpoint real
-        const data = await response.json();
-        setPizzas(data);
+        setIsLoading(true);
+        const fetchedPizzas = await api.pizza.list();
+        setPizzas(fetchedPizzas);
       } catch (error) {
-        console.error("Error fetching pizzas:", error);
+        setError(
+          "No se pudieron cargar los datos. Por favor, intente de nuevo más tarde."
+        );
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchPizzas();
+    fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setOrderDetails(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleDeliveryMethodChange = (value: "delivery" | "pickup") => {
-    setOrderDetails(prev => ({ ...prev, deliveryMethod: value }));
-  };
-
-  const addToArmarPedidoCart = (pizzaId: number) => {
-    setArmarPedidoCart(prevCart => ({
+  const addToCart = useCallback((pizza: Pizza) => {
+    setCart((prevCart) => ({
       ...prevCart,
-      [pizzaId]: (prevCart[pizzaId] || 0) + 1,
+      [pizza.id]: (prevCart[pizza.id] || 0) + 1,
     }));
-  };
+  }, []);
 
-  const removeFromArmarPedidoCart = (pizzaId: number) => {
-    setArmarPedidoCart(prevCart => {
+  const removeFromCart = useCallback((pizzaId: number) => {
+    setCart((prevCart) => {
       const newCart = { ...prevCart };
       if (newCart[pizzaId] > 1) {
         newCart[pizzaId]--;
@@ -82,189 +148,132 @@ const ArmarPedidoPage: React.FC = () => {
       }
       return newCart;
     });
-  };
+  }, []);
 
-  const getTotalPrice = () => {
-    return Object.entries(armarPedidoCart)
+  const clearCart = useCallback(() => setCart({}), []);
+
+  const getTotalItems = useCallback(
+    () => Object.values(cart).reduce((sum, quantity) => sum + quantity, 0),
+    [cart]
+  );
+
+  const getTotalPrice = useCallback(() => {
+    return Object.entries(cart)
       .reduce((sum, [pizzaId, quantity]) => {
-        const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
-        return sum + (pizza ? pizza.price * quantity : 0);
+        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+        return pizza ? sum + pizza.price * quantity : sum;
       }, 0)
       .toFixed(2);
+  }, [cart, pizzas]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setOrderData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const validateForm = () => {
-    const requiredFields = ['name', 'phone', 'date', 'time'];
-    if (orderDetails.deliveryMethod === 'delivery') {
-      requiredFields.push('address');
-    }
+  const handleWhatsAppClick = useCallback(async (): Promise<{
+    success: boolean;
+  }> => {
+    let cartItems = Object.entries(cart)
+      .map(([pizzaId, quantity]) => {
+        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
+        return pizza
+          ? `${quantity}x ${pizza.name}`
+          : `${quantity}x (Pizza no encontrada)`;
+      })
+      .join(", ");
 
-    for (const field of requiredFields) {
-      if (!orderDetails[field as keyof OrderDetails] && formRefs[field as keyof typeof formRefs]?.current) {
-        formRefs[field as keyof typeof formRefs].current?.scrollIntoView({ behavior: "smooth", block: "center" });
-        setError(`Por favor completa el campo: ${field}`);
-        return false;
-      }
-    }
-    setError(null);
-    return true;
-  };
+    const message = `Hola, me gustaría ordenar:\n${cartItems}\nTotal: $${getTotalPrice()}\nNombre: ${
+      orderData.name
+    }\nDirección: ${orderData.address}\nTeléfono: ${
+      orderData.phone
+    }\nHora deseada: ${orderData.desiredTime}\nPara: ${orderData.envioRetirar}`;
+    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
 
-  const handleConfirmOrderClick = async () => {
-    if (!validateForm()) return;
+    const formUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
+    const formData = new FormData();
+    formData.append("entry.2020561029", orderData.name);
+    formData.append("entry.1741915942", orderData.address);
+    formData.append("entry.1517497244", orderData.phone);
+    formData.append("entry.1807112285", orderData.envioRetirar);
+    formData.append("entry.1563818822", orderData.specialInstructions);
+    formData.append("entry.1020783902", orderData.rating.toString());
+    formData.append("entry.195003812", orderData.desiredTime);
+    formData.append("entry.1789182107", cartItems);
+    formData.append("entry.849798555", getTotalPrice());
 
-    setLoading(true);
+    console.log("Form Data Entries:");
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
     try {
-      // Simula el manejo del pedido, reemplaza con tu lógica real.
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setArmarPedidoCart({});
-      alert("Pedido confirmado exitosamente");
+      const response = await fetch(formUrl, { method: "POST", body: formData });
+      if (response.ok) {
+        console.log("Datos enviados a Google Sheets");
+      } else {
+        console.error(
+          "Error al enviar datos a Google Sheets:",
+          response.statusText
+        );
+      }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Hubo un problema al procesar el pedido. Por favor, inténtalo de nuevo.");
-    } finally {
-      setLoading(false);
+      console.error("Error al enviar datos a Google Sheets:", error);
+    }
+
+    setCart({});
+    return { success: true };
+  }, [cart, pizzas, orderData, getTotalPrice]);
+
+  const handleOrderConfirm = async () => {
+    const result = await handleWhatsAppClick();
+    if (result.success) {
+      clearCart();
     }
   };
+
+  const scrollToSection = useCallback((section: string) => {
+    const element = document.getElementById(section);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+  if (error) return <div>{error}</div>;
 
   return (
-    <Card className="p-4 bg-white rounded-lg shadow-md border border-gray-200 mx-auto w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-semibold mb-4 text-gray-800 text-center">
-          Armar tu Pedido
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Formulario */}
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-300 shadow-md">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Detalles del Pedido</h3>
-            {error && (
-              <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
-                {error}
-              </div>
-            )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">Nombre:</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={orderDetails.name}
-                  onChange={handleInputChange}
-                  ref={formRefs.name}
-                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium">Teléfono:</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={orderDetails.phone}
-                  onChange={handleInputChange}
-                  ref={formRefs.phone}
-                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="space-y-2 col-span-2">
-                <Label className="text-sm font-medium">Método de entrega:</Label>
-                <RadioGroup
-                  defaultValue="delivery"
-                  onValueChange={handleDeliveryMethodChange}
-                  className="flex space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="delivery" id="delivery" />
-                    <Label htmlFor="delivery">Entrega a domicilio</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="pickup" id="pickup" />
-                    <Label htmlFor="pickup">Retirar en local</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              {orderDetails.deliveryMethod === 'delivery' && (
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="address" className="text-sm font-medium">Dirección:</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    type="text"
-                    value={orderDetails.address}
-                    onChange={handleInputChange}
-                    ref={formRefs.address}
-                    className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="date" className="text-sm font-medium">Fecha de entrega:</Label>
-                <Input
-                  id="date"
-                  name="date"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  ref={formRefs.date}
-                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="time" className="text-sm font-medium">Hora deseada:</Label>
-                <Input
-                  id="time"
-                  name="time"
-                  type="time"
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  ref={formRefs.time}
-                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="space-y-2 col-span-2">
-                <Label htmlFor="specialInstructions" className="text-sm font-medium">Instrucciones especiales:</Label>
-                <Textarea
-                  id="specialInstructions"
-                  name="specialInstructions"
-                  value={orderDetails.specialInstructions}
-                  onChange={handleInputChange}
-                  className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-lg font-semibold text-gray-800">Total: ${getTotalPrice()}</span>
-              <Button
-                onClick={handleConfirmOrderClick}
-                disabled={loading}
-                className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 rounded-md px-4 py-2 transition"
-              >
-                {loading ? "Procesando..." : "Confirmar Pedido"}
-              </Button>
-            </div>
+    <div className="relative min-h-screen scroll-smooth md:scroll-auto">
+      <Header
+        scrollToSection={scrollToSection}
+        getTotalItems={getTotalItems}
+        setIsCartOpen={setIsCartOpen}
+        isCartOpen={isCartOpen}
+      />
+      <main className="pt-20">
+        <section id="armar-pedido" className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <ArmarPedido
+              pizzas={pizzas}
+              cart={cart}
+              addToCart={(pizzaId: number) =>
+                addToCart(pizzas.find((p) => p.id === pizzaId)!)
+              }
+              removeFromCart={removeFromCart}
+              handleConfirmOrder={handleOrderConfirm}
+            />
           </div>
-
-          {/* Tarjetas de pizza en cuadrícula */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-6">
-            {pizzas.map(pizza => (
-              <SmallPizzaCard
-                key={pizza.id}
-                pizza={pizza}
-                addToCart={() => addToArmarPedidoCart(pizza.id)}
-                removeFromCart={() => removeFromArmarPedidoCart(pizza.id)}
-                quantity={armarPedidoCart[pizza.id] || 0}
-                isSelected={armarPedidoCart[pizza.id] > 0}
-              />
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </section>
+        <Footer />
+      </main>
+    </div>
   );
-};
-
-export default ArmarPedidoPage;
-
+}

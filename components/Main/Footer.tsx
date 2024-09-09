@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Facebook, Twitter, Instagram } from "lucide-react";
+import { Facebook, Twitter, Instagram, Phone } from "lucide-react";
 
 const Footer: React.FC = () => {
   const [name, setName] = useState("");
@@ -15,8 +15,10 @@ const Footer: React.FC = () => {
     setLoading(true);
 
     const whatsappMessage = `Hola, soy ${name}. Mi correo es ${tel}. ${message}`;
-    const whatsappNumber = "+543444123456"; // Cambia este número por el número de tu WhatsApp
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappNumber = "+543442670573"; // Cambia este número por el número de tu WhatsApp
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
 
     window.open(whatsappUrl, "_blank");
 
@@ -33,9 +35,15 @@ const Footer: React.FC = () => {
             <h2 className="text-3xl font-bold text-red-800 mb-8">
               Contáctanos
             </h2>
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-8 rounded-lg shadow-lg"
+            >
               <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Nombre:
                 </label>
                 <Input
@@ -48,7 +56,10 @@ const Footer: React.FC = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="tel"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Dirección:
                 </label>
                 <Input
@@ -61,7 +72,10 @@ const Footer: React.FC = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="message" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="message"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Mensaje:
                 </label>
                 <Textarea
@@ -89,7 +103,7 @@ const Footer: React.FC = () => {
             </h2>
             <div className="w-full h-64 bg-gray-200 mb-8 rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2739.8226435199044!2d-58.23241568414325!3d-32.484892251667095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95afda5201c4a74b%3A0xb1a91d198efeeecd!2sCongreso%20de%20Tucum%C3%A1n%20765%2C%20E3260BAP%20Concepci%C3%B3n%20del%20Uruguay%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses-419!2sar!4v1693439123280!5m2!1ses-419!2sar"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2739.8226435199044!2d-58.23241568414325!3d-32.484892251667095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95afda5201c4a74b%3A0xb1a91d198efeeecd!2sCongreso%20de%20Tucum%C3%A1n%20786%2C%20E3260BAP%20Concepci%C3%B3n%20del%20Uruguay%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses-419!2sar!4v1693439123280!5m2!1ses-419!2sar"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -99,10 +113,11 @@ const Footer: React.FC = () => {
               ></iframe>
             </div>
             <p className="text-lg text-gray-700 mb-4 text-center md:text-left">
-              Congreso de Tucumán 765, Concepción del Uruguay
+              Congreso de Tucumán 786, Concepción del Uruguay
             </p>
             <p className="text-gray-600 text-center md:text-left">
-              Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te esperamos!
+              Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te
+              esperamos!
             </p>
           </div>
         </div>
@@ -114,27 +129,63 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0 text-center md:text-left">
               <h3 className="text-2xl font-bold mb-2">Pizzería Donatello</h3>
-              <p className="text-gray-400">Las mejores pizzas artesanales de la ciudad.</p>
+              <p className="text-gray-400">
+                Las mejores pizzas artesanales de la ciudad.
+              </p>
             </div>
             <div className="flex space-x-6 mb-4 md:mb-0">
-              <Button
-                variant="ghost"
-                size="icon"
+              {/* <a
+                href="https://www.facebook.com/tuPagina"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white hover:text-red-600 transition-colors"
               >
                 <Facebook size={24} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
+              </a> */}
+              <a
+                href="https://www.instagram.com/donatello.ok"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-white hover:text-red-600 transition-colors"
-                
               >
                 <Instagram size={24} />
-              </Button>
+              </a>
+              <a
+                href="https://wa.me/+543442670573"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-green-600 transition-colors"
+              >
+                <Phone size={24} />
+              </a>
+              {/* <a
+                href="https://www.twitter.com/tuPagina"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-red-600 transition-colors"
+              >
+                <Twitter size={24} />
+              </a> */}
             </div>
             <div className="text-center md:text-right text-gray-400">
-              <p>&copy; {new Date().getFullYear()} | Contacto: camiloescar1995@gmail.com</p>
+              <p>
+                &copy; {new Date().getFullYear()} | Contacto:{" "}
+                <a
+                  href="mailto:camiloescar1995@gmail.com"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  camiloescar1995@gmail.com
+                </a>
+                {" | "}
+                <a
+                  href="https://wa.me/+543442475466"
+                  className="text-gray-400 hover:text-green-600 transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp
+                </a>
+              </p>
             </div>
           </div>
         </div>

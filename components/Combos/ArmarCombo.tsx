@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Combo } from "@/interfaces/Combo";
@@ -14,6 +19,7 @@ interface ArmarComboProps {
   allPizzas: Pizza[];
   onOrderConfirm: () => void;
   clearCart: () => void;
+  envioRetirar: () => void;
 }
 
 const ArmarCombo: React.FC<ArmarComboProps> = ({
@@ -28,11 +34,11 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
     name: "",
     address: "",
     phone: "",
+    envioRetirar: "",
     specialInstructions: "",
     desiredTime: "",
     deliveryMethod: "Enviar", // Nueva opción para seleccionar
   });
-
   const [errors, setErrors] = useState({
     name: false,
     address: false,
@@ -40,7 +46,9 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setOrderData((prevState) => ({
@@ -66,18 +74,55 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
       .filter((pizza): pizza is Pizza => pizza !== undefined);
 
     const pizzaNames = comboPizzas.map((pizza) => pizza.name).join(", ");
-    const message = `Hola, me gustaría ordenar el combo ${combo.comboName}:\n
-Pizzas: ${pizzaNames}\n
-Precio: $${combo.specialPrice}\n
-Nombre: ${orderData.name}\n
-${orderData.deliveryMethod === "Enviar" ? `Dirección: ${orderData.address}\n` : ""}
-Teléfono: ${orderData.phone}\n
-Hora deseada: ${orderData.desiredTime}\n
-Instrucciones especiales: ${orderData.specialInstructions}\n
-Método de entrega: ${orderData.deliveryMethod}`;
+    const message = `Hola, me gustaría ordenar el combo ${combo.comboName}:
+    \nPizzas: ${pizzaNames}
+    \nPrecio: $${combo.specialPrice}
+    \nNombre: ${orderData.name}
+    \n${
+      orderData.deliveryMethod === "Enviar"
+        ? `Dirección: ${orderData.address}\n`
+        : ""
+    }
+    \nTeléfono: ${orderData.phone}
+    \nHora deseada: ${orderData.desiredTime}
+    \nInstrucciones especiales: ${orderData.specialInstructions}
+    \nMétodo de entrega: ${orderData.deliveryMethod}`;
 
-    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+      message
+    )}`;
     window.open(whatsappUrl, "_blank");
+
+    const formUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
+    const formData = new FormData();
+    formData.append("entry.2020561029", orderData.name);
+    formData.append("entry.1741915942", orderData.address);
+    formData.append("entry.1517497244", orderData.phone);
+    formData.append("entry.1807112285", orderData.deliveryMethod);
+    formData.append("entry.1563818822", orderData.specialInstructions);
+    formData.append("entry.195003812", orderData.desiredTime);
+    formData.append("entry.1789182107", combo.comboName);
+    // formData.append("entry.849798555", combo.specialPrice());
+
+    console.log("Form Data Entries:");
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
+    try {
+      const response = await fetch(formUrl, { method: "POST", body: formData });
+      if (response.ok) {
+        console.log("Datos enviados a Google Sheets");
+      } else {
+        console.error(
+          "Error al enviar datos a Google Sheets:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error al enviar datos a Google Sheets:", error);
+    }
 
     return { success: true };
   };
@@ -137,7 +182,9 @@ Método de entrega: ${orderData.deliveryMethod}`;
                 name="address"
                 value={orderData.address}
                 onChange={handleInputChange}
-                className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
+                className={`col-span-3 ${
+                  errors.address ? "border-red-500" : ""
+                }`}
               />
             </div>
           )}
@@ -179,7 +226,10 @@ Método de entrega: ${orderData.deliveryMethod}`;
             />
           </div>
         </div>
-        <Button onClick={handleOrderConfirm} className="mt-4 w-full bg-green-600 hover:bg-green-700">
+        <Button
+          onClick={handleOrderConfirm}
+          className="mt-4 w-full bg-green-600 hover:bg-green-700"
+        >
           Confirmar Orden
         </Button>
       </DialogContent>

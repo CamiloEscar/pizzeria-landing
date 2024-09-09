@@ -1,3 +1,151 @@
+// import React, { useState, useRef } from "react";
+// import { Input } from "@/components/ui/input";
+// import { Button } from "@/components/ui/button";
+// import { Pizza } from "@/interfaces/pizza";
+// import SmallPizzaCard from "../../components/Pedidos/SmallPizzaCard";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "@/components/ui/textarea";
+// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+// interface ArmarPedidoProps {
+//   pizzas: Pizza[];
+//   cart: { [key: number]: number };
+//   addToCart: (pizzaId: number) => void;
+//   removeFromCart: (pizzaId: number) => void;
+//   handleConfirmOrder: () => Promise<void>;
+// }
+
+// const ArmarPedido: React.FC<ArmarPedidoProps> = ({
+//   pizzas,
+//   cart,
+//   addToCart,
+//   removeFromCart,
+//   handleConfirmOrder,
+// }) => {
+//   const today = new Date().toISOString().split('T')[0];
+//   const [selectedDate, setSelectedDate] = useState(today);
+//   const [selectedTime, setSelectedTime] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
+//   const [orderDetails, setOrderDetails] = useState({
+//     name: "",
+//     address: "",
+//     phone: "",
+//     specialInstructions: "",
+//     deliveryMethod: "delivery",
+//   });
+//   const [error, setError] = useState<string | null>(null);
+//   const refForm = useRef<HTMLFormElement>(null);
+
+//   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+//     const { name, value } = e.target;
+//     setOrderDetails(prev => ({ ...prev, [name]: value }));
+//   };
+
+//   const handleDeliveryMethodChange = (value: string) => {
+//     setOrderDetails(prev => ({ ...prev, deliveryMethod: value }));
+//   };
+
+//   const handleConfirm = async () => {
+//     setLoading(true);
+//     try {
+//       await handleConfirmOrder();
+//       setArmarPedidoCart({});
+//     } catch (error) {
+//       setError("Hubo un problema al confirmar el pedido.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const cartItems = Object.entries(cart).map(([pizzaId, quantity]) => {
+//     const pizza = pizzas.find(p => p.id === parseInt(pizzaId));
+//     return pizza ? (
+//       <SmallPizzaCard
+//       isSelected
+//         key={pizza.id}
+//         pizza={pizza}
+//         quantity={quantity}
+//         addToCart={() => addToCart(pizza.id)}
+//         removeFromCart={() => removeFromCart(pizza.id)}
+//       />
+//     ) : null;
+//   });
+
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle>Armar Pedido</CardTitle>
+//       </CardHeader>
+//       <CardContent>
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//           {cartItems}
+//         </div>
+//         <div className="mt-8">
+//           <Label htmlFor="name">Nombre</Label>
+//           <Input
+//             id="name"
+//             name="name"
+//             type="text"
+//             value={orderDetails.name}
+//             onChange={handleInputChange}
+//             placeholder="Nombre completo"
+//           />
+//         </div>
+//         <div className="mt-4">
+//           <Label htmlFor="address">Dirección</Label>
+//           <Input
+//             id="address"
+//             name="address"
+//             type="text"
+//             value={orderDetails.address}
+//             onChange={handleInputChange}
+//             placeholder="Dirección de entrega"
+//           />
+//         </div>
+//         <div className="mt-4">
+//           <Label htmlFor="phone">Teléfono</Label>
+//           <Input
+//             id="phone"
+//             name="phone"
+//             type="text"
+//             value={orderDetails.phone}
+//             onChange={handleInputChange}
+//             placeholder="Número de teléfono"
+//           />
+//         </div>
+//         <div className="mt-4">
+//           <Label htmlFor="specialInstructions">Instrucciones especiales</Label>
+//           <Textarea
+//             id="specialInstructions"
+//             name="specialInstructions"
+//             value={orderDetails.specialInstructions}
+//             onChange={handleInputChange}
+//             placeholder="Instrucciones adicionales"
+//           />
+//         </div>
+//         <div className="mt-4">
+//           <RadioGroup value={orderDetails.deliveryMethod} onValueChange={handleDeliveryMethodChange}>
+//             <div className="flex space-x-4">
+//               <RadioGroupItem value="delivery" id="delivery" />
+//               <RadioGroupItem value="pickup" id="pickup" />
+//             </div>
+//           </RadioGroup>
+//         </div>
+//         <div className="flex justify-end mt-6">
+//           <Button onClick={handleConfirm} disabled={loading}>
+//             {loading ? "Confirmando..." : "Confirmar Pedido"}
+//           </Button>
+//         </div>
+//         {error && <p className="text-red-500">{error}</p>}
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default ArmarPedido;
+
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +155,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import CartDialog from "../Pizzas/CartDialog";
 
 interface ArmarPedidoProps {
   pizzas: Pizza[];
@@ -36,7 +185,8 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   removeFromCart,
   handleConfirmOrder,
 }) => {
-  const [selectedDate, setSelectedDate] = useState("");
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(today);
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [armarPedidoCart, setArmarPedidoCart] = useState<{ [key: number]: number }>({});
@@ -53,7 +203,6 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     name: useRef<HTMLInputElement>(null),
     address: useRef<HTMLInputElement>(null),
     phone: useRef<HTMLInputElement>(null),
-    date: useRef<HTMLInputElement>(null),
     time: useRef<HTMLInputElement>(null),
   };
 
@@ -95,7 +244,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   };
 
   const validateForm = () => {
-    const requiredFields = ['name', 'phone', 'date', 'time'];
+    const requiredFields = ['name', 'phone', 'time'];
     if (orderDetails.deliveryMethod === 'delivery') {
       requiredFields.push('address');
     }
@@ -107,6 +256,13 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
         return false;
       }
     }
+
+    if (!selectedTime) {
+      formRefs.time.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setError("Por favor selecciona una hora de entrega");
+      return false;
+    }
+
     setError(null);
     return true;
   };
@@ -126,7 +282,6 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
       setLoading(false);
     }
   };
-
   return (
     <Card className="p-4 bg-white rounded-lg shadow-md border border-gray-200 mx-auto w-full">
       <CardHeader>
@@ -208,7 +363,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  ref={formRefs.date}
+                  min={today}
                   className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -220,7 +375,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
                   type="time"
                   value={selectedTime}
                   onChange={(e) => setSelectedTime(e.target.value)}
-                  ref={formRefs.time}
+                  min={today}
                   className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
