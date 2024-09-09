@@ -5,18 +5,14 @@ import { Pizza } from "../interfaces/pizza";
 import { Combo } from "@/interfaces/Combo";
 import api from "@/interfaces/api";
 import { AnimatePresence } from "framer-motion";
-
-// Components
 import Header from "@/components/Main/Header";
 import { HeroSection } from "@/components/Main/HeroSection";
 import Footer from "@/components/Main/Footer";
 import CartDialog from "@/components/Pizzas/CartDialog";
 import OrderDialog from "@/components/Pizzas/OrderDialog";
-import ArmarPedido from "@/components/Pedidos/ArmarPedido";
 import CombosSection from "@/components/Main/ComboSection";
-import { PizzaCard } from "@/components/Pizzas/PizzaCard";
+import PizzaCard from "@/components/Pizzas/PizzaCard";
 
-// Types
 interface OrderData {
   name: string;
   address: string;
@@ -28,7 +24,6 @@ interface OrderData {
 }
 
 export default function Home() {
-  // State
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState<Combo | null>(null);
@@ -58,7 +53,6 @@ export default function Home() {
         setPizzas(fetchedPizzas);
         setCombos(fetchedCombos);
       } catch (error) {
-        console.error("Error al obtener datos:", error);
         setError(
           "No se pudieron cargar los datos. Por favor, intente de nuevo más tarde."
         );
@@ -70,7 +64,6 @@ export default function Home() {
     fetchData();
   }, []);
 
-  // Cart functions
   const addToCart = useCallback((pizza: Pizza) => {
     setCart((prevCart) => ({
       ...prevCart,
@@ -90,15 +83,12 @@ export default function Home() {
     });
   }, []);
 
-  const clearCart = useCallback(() => {
-    setCart({});
-  }, []);
+  const clearCart = useCallback(() => setCart({}), []);
 
-
-  // Cart calculations
-  const getTotalItems = useCallback(() => {
-    return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
-  }, [cart]);
+  const getTotalItems = useCallback(
+    () => Object.values(cart).reduce((sum, quantity) => sum + quantity, 0),
+    [cart]
+  );
 
   const getTotalPrice = useCallback(() => {
     return Object.entries(cart)
@@ -109,21 +99,16 @@ export default function Home() {
       .toFixed(2);
   }, [cart, pizzas]);
 
-  // Form handling
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setOrderData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setOrderData((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleWhatsAppClick = useCallback(async (): Promise<{
     success: boolean;
   }> => {
-    // Construcción del mensaje
     let cartItems = "";
     let total = 0;
 
@@ -147,14 +132,11 @@ export default function Home() {
     }\nDirección: ${orderData.address}\nTeléfono: ${
       orderData.phone
     }\nHora deseada: ${orderData.desiredTime}`;
-
-    // Envío a WhatsApp
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
 
-    // Envío a Google Sheets
     const formUrl =
       "https://docs.google.com/forms/d/e/1FAIpQLSdFQ42trIlOffF9smenq5oiCfOCLdjc42Q7bAurih4wWl_fhw/formResponse";
     const formData = new FormData();
@@ -193,7 +175,6 @@ export default function Home() {
     }
   };
 
-  // UI helpers
   const scrollToSection = useCallback((section: string) => {
     const element = document.getElementById(section);
     if (element) {
@@ -217,36 +198,26 @@ export default function Home() {
           <HeroSection />
         </section>
         <section id="productos" className="py-16 bg-white">
-  <div className="container mx-auto px-4">
-    <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
-      Menú de Pizzas
-    </h2>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[72px] justify-items-center">
-      {pizzas.map((pizza) => (
-        <div
-          key={pizza.id}
-          className="flex justify-center items-center"
-        >
-          <PizzaCard pizza={pizza} addToCart={addToCart} />
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
+              Menú de Pizzas
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {pizzas.map((pizza) => (
+                <div
+                  key={pizza.id}
+                  className="flex justify-center items-center"
+                >
+                  <PizzaCard pizza={pizza} addToCart={addToCart} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
         <section id="combos">
-        <CombosSection combos={combos} clearCart={clearCart} />
+          <CombosSection combos={combos} clearCart={clearCart} />
         </section>
-        <section id="armar-pedido">
-          <ArmarPedido
-            pizzas={pizzas}
-            cart={cart}
-            addToCart={(pizzaId: number) =>
-              addToCart(pizzas.find((p) => p.id === pizzaId)!)
-            }
-            removeFromCart={removeFromCart}
-            handleConfirmOrder={handleOrderConfirm}
-          />
-        </section>
+        <div className="text-center mt-8"></div>
         <Footer />
       </main>
       <AnimatePresence>

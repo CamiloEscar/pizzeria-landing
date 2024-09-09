@@ -2,13 +2,11 @@ import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pizza } from "@/interfaces/pizza";
-import SmallPizzaCard from "@/components/Pedidos/SmallPizzaCard";
+import SmallPizzaCard from "../../components/Pedidos/SmallPizzaCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { motion } from "framer-motion";
-import { Star, ShoppingCart, Minus, Plus, Trash } from "lucide-react";
 
 interface ArmarPedidoProps {
   pizzas: Pizza[];
@@ -250,7 +248,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
           </div>
 
           {/* Tarjetas de pizza en cuadrícula */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-6">
             {pizzas.map(pizza => (
               <SmallPizzaCard
                 key={pizza.id}
