@@ -1,25 +1,14 @@
-import React, { useState, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Pizza } from "@/interfaces/pizza";
-import SmallPizzaCard from "../../components/Pedidos/SmallPizzaCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-interface ArmarPedidoProps {
-  pizzas: Pizza[];
-  cart: { [key: number]: number };
-  addToCart: (pizzaId: number) => void;
-  removeFromCart: (pizzaId: number) => void;
-  handleConfirmOrder: (
-    cart: { [key: number]: number },
-    date: string,
-    time: string,
-    orderDetails: OrderDetails
-  ) => Promise<void>;
-}
+// app/armar-pedido/page.tsx
+"use client";
+import React, { useState, useEffect, useRef } from 'react';
+import { Pizza } from '@/interfaces/pizza';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import SmallPizzaCard from '@/components/Pedidos/SmallPizzaCard';
 
 interface OrderDetails {
   name: string;
@@ -29,13 +18,8 @@ interface OrderDetails {
   deliveryMethod: "delivery" | "pickup";
 }
 
-const ArmarPedido: React.FC<ArmarPedidoProps> = ({
-  pizzas,
-  cart,
-  addToCart,
-  removeFromCart,
-  handleConfirmOrder,
-}) => {
+const ArmarPedidoPage: React.FC = () => {
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +40,21 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     date: useRef<HTMLInputElement>(null),
     time: useRef<HTMLInputElement>(null),
   };
+
+  useEffect(() => {
+    // Fetch pizzas data from the server
+    const fetchPizzas = async () => {
+      try {
+        const response = await fetch('/interfaces/pizza.ts'); // Cambia la URL a tu endpoint real
+        const data = await response.json();
+        setPizzas(data);
+      } catch (error) {
+        console.error("Error fetching pizzas:", error);
+      }
+    };
+
+    fetchPizzas();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -116,7 +115,8 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
     setLoading(true);
     try {
-      await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime, orderDetails);
+      // Simula el manejo del pedido, reemplaza con tu lógica real.
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setArmarPedidoCart({});
       alert("Pedido confirmado exitosamente");
     } catch (error) {
@@ -266,4 +266,5 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
   );
 };
 
-export default ArmarPedido;
+export default ArmarPedidoPage;
+
