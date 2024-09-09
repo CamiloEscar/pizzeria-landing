@@ -35,7 +35,7 @@ const CartDialog: React.FC<CartDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby="dialog-description" className="sm:max-w-[500px]">
-      <p id="dialog-description">Este es el contenido del diálogo.</p>
+      <p id="dialog-description">Este es el contenido de</p>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-red-800">
             Tu carrito

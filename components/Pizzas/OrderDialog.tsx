@@ -16,7 +16,9 @@ import { motion } from "framer-motion";
 interface OrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   handleWhatsAppClick: () => Promise<{ success: boolean }>;
   orderData: {
     name: string;
@@ -64,7 +66,11 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   };
 
   const handleConfirmOrder = async () => {
-    if (!orderData.name || !orderData.phone || (deliveryOption === "Enviar" && !orderData.address)) {
+    if (
+      !orderData.name ||
+      !orderData.phone ||
+      (deliveryOption === "Enviar" && !orderData.address)
+    ) {
       alert("Por favor, completa todos los campos requeridos.");
       return;
     }
@@ -84,7 +90,9 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
       setCurrentStage(4);
       clearCart();
     } else {
-      alert("Hubo un problema al enviar el mensaje de WhatsApp. Por favor, inténtalo de nuevo.");
+      alert(
+        "Hubo un problema al enviar el mensaje de WhatsApp. Por favor, inténtalo de nuevo."
+      );
     }
   };
 
@@ -95,7 +103,8 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
         <div key={pizza?.id} className="flex justify-between items-center mb-2">
           <span>{pizza?.name}</span>
           <span>
-            {quantity} x ${pizza?.price.toFixed(2)} = ${(quantity * (pizza?.price || 0)).toFixed(2)}
+            {quantity} x ${pizza?.price.toFixed(2)} = $
+            {(quantity * (pizza?.price || 0)).toFixed(2)}
           </span>
         </div>
       ))}
@@ -196,13 +205,17 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
                 <div className="col-span-3">
                   <div className="flex space-x-4">
                     <Button
-                      variant={deliveryOption === "Enviar" ? "default" : "outline"}
+                      variant={
+                        deliveryOption === "Enviar" ? "default" : "outline"
+                      }
                       onClick={() => setDeliveryOption("Enviar")}
                     >
                       Enviar
                     </Button>
                     <Button
-                      variant={deliveryOption === "Retirar" ? "default" : "outline"}
+                      variant={
+                        deliveryOption === "Retirar" ? "default" : "outline"
+                      }
                       onClick={() => setDeliveryOption("Retirar")}
                     >
                       Retirar
@@ -236,12 +249,27 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             </DialogHeader>
             <div className="py-4">
               <h2 className="text-lg font-bold">Detalles del pedido</h2>
-              <p><strong>Nombre:</strong> {orderData.name}</p>
-              <p><strong>Dirección:</strong> {deliveryOption === "Enviar" ? orderData.address : "No aplica"}</p>
-              <p><strong>Teléfono:</strong> {orderData.phone}</p>
-              <p><strong>Instrucciones especiales:</strong> {orderData.specialInstructions || 'Ninguna'}</p>
-              <p><strong>Hora deseada:</strong> {orderData.desiredTime || 'No especificada'}</p>
-              <p><strong>Opción de entrega:</strong> {deliveryOption}</p>
+              <p>
+                <strong>Nombre:</strong> {orderData.name}
+              </p>
+              <p>
+                <strong>Dirección:</strong>{" "}
+                {deliveryOption === "Enviar" ? orderData.address : "No aplica"}
+              </p>
+              <p>
+                <strong>Teléfono:</strong> {orderData.phone}
+              </p>
+              <p>
+                <strong>Instrucciones especiales:</strong>{" "}
+                {orderData.specialInstructions || "Ninguna"}
+              </p>
+              <p>
+                <strong>Hora deseada:</strong>{" "}
+                {orderData.desiredTime || "No especificada"}
+              </p>
+              <p>
+                <strong>Opción de entrega:</strong> {deliveryOption}
+              </p>
             </div>
             <OrderSummary />
             <DialogFooter>
@@ -250,7 +278,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
                 className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
                 disabled={isLoading}
               >
-                {isLoading ? 'Procesando...' : 'Confirmar pedido'}
+                {isLoading ? "Procesando..." : "Confirmar pedido"}
               </Button>
               <Button
                 onClick={() => setCurrentStage(1)}
@@ -285,7 +313,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
                 className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
                 disabled={isLoading}
               >
-                {isLoading ? 'Enviando...' : 'Enviar por WhatsApp'}
+                {isLoading ? "Enviando..." : "Enviar por WhatsApp"}
               </Button>
             </DialogFooter>
           </motion.div>
@@ -323,7 +351,12 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>{renderStage()}</DialogContent>
+      <DialogContent
+        className="max-h-screen overflow-auto p-0"
+        style={{ maxHeight: "90vh" }} // Ajusta la altura máxima del contenido
+      >
+        {renderStage()}
+      </DialogContent>
     </Dialog>
   );
 };

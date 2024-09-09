@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, ShoppingCart, X, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import Image from 'next/image';
-import { useStories } from './useStories'; // Custom hook for Stories logic
+import Link from 'next/link'; // Import Link from Next.js
+import { useStories } from './useStories';
 
 interface HeaderProps {
   scrollToSection: (section: string) => void;
@@ -31,12 +32,17 @@ const Header: React.FC<HeaderProps> = ({ scrollToSection, getTotalItems, setIsCa
     { name: "Inicio", section: "inicio" },
     { name: "Menú", section: "productos" },
     { name: "Combos", section: "combos" },
-    { name: "Armar Pedido", section: "armar-pedido" },
+    { name: "Armar Pedido", section: "armar-pedido", href: "/armar-pedido" },
     { name: "Contacto", section: "contacto" },
   ];
 
-  const handleNavItemClick = useCallback((section: string) => {
-    scrollToSection(section);
+  const handleNavItemClick = useCallback((section: string, href?: string) => {
+    if (href) {
+      // If href is provided, it's a link to another page
+      // The routing will be handled by Next.js Link component
+    } else {
+      scrollToSection(section);
+    }
     setIsMenuOpen(false);
   }, [scrollToSection]);
 
@@ -115,7 +121,7 @@ const Logo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => {
   );
 };
 
-const DesktopNavigation: React.FC<{ navItems: Array<{ name: string, section: string }>, onItemClick: (section: string) => void }> = ({ navItems, onItemClick }) => (
+const DesktopNavigation: React.FC<{ navItems: Array<{ name: string, section: string, href?: string }>, onItemClick: (section: string, href?: string) => void }> = ({ navItems, onItemClick }) => (
   <nav className="hidden md:flex flex-grow justify-center items-center space-x-4">
     {navItems.map((item, index) => (
       <motion.div
@@ -124,21 +130,33 @@ const DesktopNavigation: React.FC<{ navItems: Array<{ name: string, section: str
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
       >
-        <Button
-          variant="ghost"
-          className="text-gray-800 hover:text-red-600 transition duration-300"
-          onClick={() => onItemClick(item.section)}
-        >
-          {item.name}
-        </Button>
+        {item.href ? (
+          <Link href={item.href} passHref>
+            <Button
+              variant="ghost"
+              className="text-gray-800 hover:text-red-600 transition duration-300"
+              onClick={() => onItemClick(item.section, item.href)}
+            >
+              {item.name}
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            variant="ghost"
+            className="text-gray-800 hover:text-red-600 transition duration-300"
+            onClick={() => onItemClick(item.section)}
+          >
+            {item.name}
+          </Button>
+        )}
       </motion.div>
     ))}
   </nav>
 );
 
 const MobileNavigation: React.FC<{ 
-  navItems: Array<{ name: string, section: string }>, 
-  onItemClick: (section: string) => void,
+  navItems: Array<{ name: string, section: string, href?: string }>, 
+  onItemClick: (section: string, href?: string) => void,
   isMenuOpen: boolean,
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
 }> = ({ navItems, onItemClick, isMenuOpen, setIsMenuOpen }) => (
@@ -155,14 +173,26 @@ const MobileNavigation: React.FC<{
         </SheetHeader>
         <div className="mt-4 space-y-4">
           {navItems.map((item) => (
-            <Button
-              key={item.section}
-              variant="ghost"
-              className="w-full justify-start text-lg"
-              onClick={() => onItemClick(item.section)}
-            >
-              {item.name}
-            </Button>
+            item.href ? (
+              <Link key={item.section} href={item.href} passHref>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-lg"
+                  onClick={() => onItemClick(item.section, item.href)}
+                >
+                  {item.name}
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                key={item.section}
+                variant="ghost"
+                className="w-full justify-start text-lg"
+                onClick={() => onItemClick(item.section)}
+              >
+                {item.name}
+              </Button>
+            )
           ))}
         </div>
       </SheetContent>
