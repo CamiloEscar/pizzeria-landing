@@ -224,7 +224,7 @@ export default function Home() {
                   key={pizza.id}
                   className="flex justify-center items-center"
                 >
-                  <PizzaCard pizza={pizza} addToCart={addToCart} />
+                  <PizzaCard pizza={pizza} addToCart={addToCart} pizzas={pizzas} />
                 </div>
               ))}
             </div>
