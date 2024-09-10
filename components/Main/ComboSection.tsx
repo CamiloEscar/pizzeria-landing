@@ -8,9 +8,10 @@ import ArmarCombo from "../Combos/ArmarCombo";
 interface CombosSectionProps {
   combos: Combo[];
   clearCart: () => void;
+  envioRetirar: () => void;
 }
 
-const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart }) => {
+const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioRetirar }) => { 
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const [selectedCombo, setSelectedCombo] = useState<Combo | null>(null);
   const [isArmarComboOpen, setIsArmarComboOpen] = useState(false);
@@ -87,6 +88,7 @@ const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart }) => {
           allPizzas={pizzas}
           onOrderConfirm={handleArmarComboClose}
           clearCart={clearCart}
+          envioRetirar={envioRetirar} 
         />
       )}
     </section>
