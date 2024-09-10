@@ -43,6 +43,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const envioRetirar = (newValue: string) => {
+    setOrderData((prevState) => ({ ...prevState, envioRetirar: newValue }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -227,7 +231,7 @@ export default function Home() {
           </div>
         </section>
         <section id="combos">
-          <CombosSection combos={combos} clearCart={clearCart} />
+          <CombosSection combos={combos} clearCart={clearCart} envioRetirar={envioRetirar} />
         </section>
         <div className="text-center mt-8"></div>
         <Footer />

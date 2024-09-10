@@ -8,7 +8,7 @@ import ArmarCombo from "../Combos/ArmarCombo";
 interface CombosSectionProps {
   combos: Combo[];
   clearCart: () => void;
-  envioRetirar: () => void;
+  envioRetirar: (newValue: string) => void;
 }
 
 const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioRetirar }) => { 
@@ -17,6 +17,10 @@ const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioR
   const [isArmarComboOpen, setIsArmarComboOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleRetirar = (value: string) => {
+    envioRetirar(value); // Llama a la función con un argumento
+  };
 
   useEffect(() => {
     const fetchPizzas = async () => {
@@ -88,7 +92,7 @@ const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioR
           allPizzas={pizzas}
           onOrderConfirm={handleArmarComboClose}
           clearCart={clearCart}
-          envioRetirar={envioRetirar} 
+          envioRetirar={handleRetirar}
         />
       )}
     </section>

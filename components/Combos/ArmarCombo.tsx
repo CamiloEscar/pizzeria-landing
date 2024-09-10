@@ -19,7 +19,7 @@ interface ArmarComboProps {
   allPizzas: Pizza[];
   onOrderConfirm: () => void;
   clearCart: () => void;
-  envioRetirar: () => void;
+  envioRetirar: (newValue: string) => void;
 }
 
 const ArmarCombo: React.FC<ArmarComboProps> = ({
