@@ -4,6 +4,7 @@ export interface Pizza {
   description: string;
   price: number;
   image: string;
-  rating: number; //opcional
-  promotion?: string; //opcional
+  rating: number;
+  promotion?: string; 
+  receta?: string[];
 }

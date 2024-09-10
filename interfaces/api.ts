@@ -14,7 +14,7 @@ const api = {
                     .split("\n")
                     .slice(1)
                     .map((row) => {
-                        const [id, name, description, price, image, rating, promotion] = row.split("\t");
+                        const [id, name, description, price, image, rating, promotion, receta] = row.split("\t");
 
                         return {
                             id: parseInt(id.trim()),          // Convertir id a número
@@ -23,7 +23,8 @@ const api = {
                             price: parseFloat(price.trim()),  // Convertir price a número
                             image: image.trim(),
                             rating: parseFloat(rating.trim()), // Convertir rating a número
-                            promotion: promotion ? promotion.trim() : undefined // Nueva propiedad opcional
+                            promotion: promotion ? promotion.trim() : undefined,
+                            receta: receta ? receta.trim().split(",").map(item => item.trim()) : [] // Convertir receta a array
                         } as Pizza;  // Asegurarse de que el tipo devuelto sea Pizza
                     });
             });
