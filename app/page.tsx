@@ -12,7 +12,11 @@ import CartDialog from "@/components/Pizzas/CartDialog";
 import OrderDialog from "@/components/Pizzas/OrderDialog";
 import CombosSection from "@/components/Main/ComboSection";
 import PizzaCard from "@/components/Pizzas/PizzaCard";
+import MenuView from "@/components/Pizzas/MenuView";
 import LoadingState from "@/components/LoadingState";
+import { Button } from "@/components/ui/button";
+import { Grid, List } from "lucide-react";
+import PizzaMenu from "@/components/Pizzas/PizzaMenu";
 
 interface OrderData {
   name: string;
@@ -42,6 +46,7 @@ export default function Home() {
   const [combos, setCombos] = useState<Combo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const envioRetirar = (newValue: string) => {
     setOrderData((prevState) => ({ ...prevState, envioRetirar: newValue }));
@@ -214,26 +219,11 @@ export default function Home() {
           <HeroSection />
         </section>
         <section id="productos" className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8">
-              Menú de Pizzas
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {pizzas.map((pizza) => (
-                <div
-                  key={pizza.id}
-                  className="flex justify-center items-center"
-                >
-                  <PizzaCard pizza={pizza} addToCart={addToCart} pizzas={pizzas} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <PizzaMenu pizzas={pizzas} addToCart={addToCart} />
         </section>
         <section id="combos">
           <CombosSection combos={combos} clearCart={clearCart} envioRetirar={envioRetirar} />
         </section>
-        <div className="text-center mt-8"></div>
         <Footer />
       </main>
       <AnimatePresence>
