@@ -43,7 +43,7 @@ const api = {
                 text.split("\n")
                     .slice(1)
                     .forEach((row) => {
-                        const [comboName, pizzaIdsString, specialPriceString] = row.split("\t");
+                        const [comboName, pizzaIdsString, specialPriceString, promo] = row.split("\t");
 
                         if (!comboName || !pizzaIdsString || !specialPriceString) {
                             // Ignorar filas incompletas
@@ -71,7 +71,8 @@ const api = {
                             comboName: comboName.trim(),
                             pizzaIds,
                             specialPrice,
-                            originalPrice
+                            originalPrice,
+                            promo: promo ? promo.trim() : undefined // Añadir la promoción
                         });
                     });
                 return combos;

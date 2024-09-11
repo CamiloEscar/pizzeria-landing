@@ -73,6 +73,7 @@ const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioR
                       pizzas={comboPizzas}
                       specialPrice={combo.specialPrice}
                       originalPrice={originalPrice}
+                      promo={combo.promo}
                     />
                   </div>
                 );

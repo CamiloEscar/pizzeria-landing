@@ -103,7 +103,7 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
     formData.append("entry.1563818822", orderData.specialInstructions);
     formData.append("entry.195003812", orderData.desiredTime);
     formData.append("entry.1789182107", combo.comboName);
-    // formData.append("entry.849798555", combo.specialPrice());
+    formData.append("entry.849798555", combo.specialPrice.toFixed(2)); // Añadir el precio especial
 
     console.log("Form Data Entries:");
     formData.forEach((value, key) => {
@@ -182,9 +182,7 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
                 name="address"
                 value={orderData.address}
                 onChange={handleInputChange}
-                className={`col-span-3 ${
-                  errors.address ? "border-red-500" : ""
-                }`}
+                className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
               />
             </div>
           )}
@@ -225,6 +223,17 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
               className="col-span-3"
             />
           </div>
+          {/* Mostrar la promoción aquí */}
+          {combo.promo && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="promo" className="text-right">
+                Promoción
+              </Label>
+              <div id="promo" className="col-span-3 text-lg font-bold text-blue-600">
+                {combo.promo}
+              </div>
+            </div>
+          )}
         </div>
         <Button
           onClick={handleOrderConfirm}

@@ -103,7 +103,7 @@ const Footer: React.FC = () => {
             </h2>
             <div className="w-full h-64 bg-gray-200 mb-8 rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2739.8226435199044!2d-58.23241568414325!3d-32.484892251667095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95afda5201c4a74b%3A0xb1a91d198efeeecd!2sCongreso%20de%20Tucum%C3%A1n%20786%2C%20E3260BAP%20Concepci%C3%B3n%20del%20Uruguay%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses-419!2sar!4v1693439123280!5m2!1ses-419!2sar"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2739.8226435199044!2d-58.23241568414325!3d-32.484892251667095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95afda5201c4a74b%3A0xb1a91d198efeeecd!2sCongreso%20de%20Tucum%C3%A1n%20784%2C%20E3260BAP%20Concepci%C3%B3n%20del%20Uruguay%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses-419!2sar!4v1693439123280!5m2!1ses-419!2sar"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               ></iframe>
             </div>
             <p className="text-lg text-gray-700 mb-4 text-center md:text-left">
-              Congreso de Tucumán 786, Concepción del Uruguay
+              Congreso de Tucumán 784, Concepción del Uruguay
             </p>
             <p className="text-gray-600 text-center md:text-left">
               Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te

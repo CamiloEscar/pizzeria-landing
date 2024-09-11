@@ -10,6 +10,7 @@ interface ComboCardProps {
   pizzas: Pizza[];
   specialPrice: number;
   originalPrice: number;
+  promo?: string;  // Asegúrate de que esta propiedad esté incluida
 }
 
 const ComboCard: React.FC<ComboCardProps> = ({
@@ -17,6 +18,7 @@ const ComboCard: React.FC<ComboCardProps> = ({
   pizzas,
   specialPrice,
   originalPrice,
+  promo,  // Incluye la propiedad promo aquí
 }) => {
   const discount = Math.round(
     ((originalPrice - specialPrice) / originalPrice) * 100
@@ -41,14 +43,26 @@ const ComboCard: React.FC<ComboCardProps> = ({
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60" />
-        <motion.div
-          className="absolute top-4 left-4 bg-red-600 text-yellow-300 text-xs font-bold py-1 px-3 rounded-full shadow-md"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: [1, 0.7, 1, 0.7, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-        >
-          {discount}% OFF
-        </motion.div>
+        <div className="absolute top-4 left-4 flex items-center space-x-2">
+          <motion.div
+            className="bg-red-600 text-yellow-300 text-xs font-bold py-1 px-3 rounded-full shadow-md"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: [1, 0.7, 1, 0.7, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          >
+            {discount}% OFF
+          </motion.div>
+          {promo && (
+            <motion.div
+              className="bg-blue-600 text-white text-xs font-bold py-1 px-3 rounded-full shadow-md"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: [1, 0.7, 1, 0.7, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            >
+              {promo}
+            </motion.div>
+          )}
+        </div>
       </div>
 
       <div className="relative p-6 pt-16 pb-16">

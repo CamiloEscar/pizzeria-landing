@@ -84,7 +84,7 @@ export const HeroSection = () => {
             <div className="space-y-6">
               <InfoItem 
                 icon={MapPin} 
-                text="Congreso de Tucuman 786, Concepción del Uruguay" 
+                text="Congreso de Tucuman 784, Concepción del Uruguay" 
                 label="Dirección"
               />
               <InfoItem 
