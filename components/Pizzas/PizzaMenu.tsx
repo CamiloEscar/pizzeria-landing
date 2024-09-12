@@ -29,13 +29,19 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
   }, [pizzas, searchTerm, filterType]);
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-0">
-          Menú de Pizzas
+    <div className="container mx-auto px-4 max-w-6xl">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          Nuestro Menú de Pizzas
         </h2>
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          <div className="relative flex-grow">
+        <p className="text-xl text-gray-600">
+          Descubre nuestra deliciosa selección de pizzas artesanales
+        </p>
+      </div>
+
+      <div className="bg-white shadow-xl rounded-lg p-6 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
+          <div className="relative flex-grow w-full md:w-1/3">
             <Input
               type="text"
               placeholder="Buscar pizzas..."
@@ -46,7 +52,7 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           </div>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-full md:w-[180px]">
+            <SelectTrigger className="w-full md:w-[200px]">
               <SelectValue placeholder="Filtrar por" />
             </SelectTrigger>
             <SelectContent>
@@ -59,6 +65,7 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
             <Button
               onClick={() => setViewMode("grid")}
               variant={viewMode === "grid" ? "default" : "outline"}
+              className="w-24"
             >
               <Grid size={20} className="mr-2" />
               Grid
@@ -66,6 +73,7 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
             <Button
               onClick={() => setViewMode("list")}
               variant={viewMode === "list" ? "default" : "outline"}
+              className="w-24"
             >
               <List size={20} className="mr-2" />
               Lista
@@ -75,7 +83,7 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
       </div>
       
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPizzas.map((pizza) => (
             <div key={pizza.id} className="flex justify-center items-center">
               <PizzaCard pizza={pizza} addToCart={addToCart} pizzas={pizzas} />

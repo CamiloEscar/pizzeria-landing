@@ -7,19 +7,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import CartDialog from "../Pizzas/CartDialog";
 
 interface ArmarPedidoProps {
   pizzas: Pizza[];
   cart: { [key: number]: number };
   addToCart: (pizzaId: number) => void;
   removeFromCart: (pizzaId: number) => void;
-  handleConfirmOrder: (
-    cart: { [key: number]: number },
-    date: string,
-    time: string,
-    orderDetails: OrderDetails
-  ) => Promise<void>;
+  handleConfirmOrder: (orderData: {
+    cart: { [key: number]: number };
+    date: string;
+    time: string;
+    name: string;
+    address: string;
+    phone: string;
+    specialInstructions: string;
+    deliveryMethod: "delivery" | "pickup";
+  }) => Promise<void>;
 }
 
 interface OrderDetails {
@@ -121,10 +124,20 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
 
   const handleConfirmOrderClick = async () => {
     if (!validateForm()) return;
-
+  
     setLoading(true);
     try {
-      await handleConfirmOrder(armarPedidoCart, selectedDate, selectedTime, orderDetails);
+      const orderData = {
+        cart: armarPedidoCart,
+        date: selectedDate,
+        time: selectedTime,
+        name: orderDetails.name,
+        address: orderDetails.address,
+        phone: orderDetails.phone,
+        specialInstructions: orderDetails.specialInstructions,
+        deliveryMethod: orderDetails.deliveryMethod,
+      };
+      await handleConfirmOrder(orderData);
       setArmarPedidoCart({});
       alert("Pedido confirmado exitosamente");
     } catch (error) {
