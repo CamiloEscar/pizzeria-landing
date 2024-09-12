@@ -21,6 +21,7 @@ interface OrderDetails {
   phone: string;
   specialInstructions: string;
   deliveryMethod: "Enviar" | "retira";
+  diaReserva: string;
 }
 
 const ArmarPedido: React.FC<ArmarPedidoProps> = ({
@@ -42,6 +43,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     phone: "",
     specialInstructions: "",
     deliveryMethod: "Enviar",
+    diaReserva: "",
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -131,7 +133,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
     try {
       const orderData = {
         cart: armarPedidoCart,
-        date: selectedDate,
+        diaReserva: selectedDate,
         time: selectedTime,
         name: orderDetails.name,
         address: orderDetails.address,
@@ -153,7 +155,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
         `Hola, quisiera realizar el siguiente pedido:\nNombre: ${orderData.name} ` +
         `\nTeléfono: ${orderData.phone} ` +
         `\nDirección: ${orderData.address} ` +
-        `\nFecha: ${orderData.date} ` +
+        `\nFecha: ${orderData.diaReserva} ` +
         `\nHora: ${orderData.time} ` +
         `\nMétodo de entrega: ${orderData.deliveryMethod} ` +
         `\nInstrucciones especiales: ${orderData.specialInstructions}  ` +
@@ -174,7 +176,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
       formData.append("entry.1517497244", orderData.phone);
       formData.append("entry.1807112285", orderData.deliveryMethod);
       formData.append("entry.1563818822", orderData.specialInstructions);
-      formData.append("entry.1020783902", ""); // Assuming rating is not used or needs to be updated
+      formData.append("entry.13111002", orderData.diaReserva);
       formData.append("entry.195003812", orderData.time);
       formData.append("entry.1789182107", cartItems);
       formData.append("entry.849798555", orderData.total);
