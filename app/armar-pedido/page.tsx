@@ -12,7 +12,7 @@ interface OrderData {
   name: string;
   address: string;
   phone: string;
-  envioRetirar: "delivery" | "pickup";
+  envioRetirar: "Enviar" | "retira";
   specialInstructions: string;
   rating: number;
   desiredTime: string;
@@ -25,7 +25,7 @@ export default function ArmarPedidoPage() {
     name: "",
     address: "",
     phone: "",
-    envioRetirar: "delivery",
+    envioRetirar: "Enviar",
     specialInstructions: "",
     rating: 0,
     desiredTime: "",
@@ -108,7 +108,7 @@ export default function ArmarPedidoPage() {
     }\nDirección: ${orderData.address}\nTeléfono: ${
       orderData.phone
     }\nHora deseada: ${orderData.desiredTime}\nPara: ${
-      orderData.envioRetirar === "delivery" ? "Enviar" : "Retirar"
+      orderData.envioRetirar === "Enviar" ? "Enviar" : "Retirar"
     }`;
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
       message
@@ -121,7 +121,10 @@ export default function ArmarPedidoPage() {
     formData.append("entry.2020561029", orderData.name);
     formData.append("entry.1741915942", orderData.address);
     formData.append("entry.1517497244", orderData.phone);
-    formData.append("entry.1807112285", orderData.envioRetirar === "delivery" ? "Enviar" : "Retirar");
+    formData.append(
+      "entry.1807112285",
+      orderData.envioRetirar === "Enviar" ? "Enviar" : "Retirar"
+    );
     formData.append("entry.1563818822", orderData.specialInstructions);
     formData.append("entry.1020783902", orderData.rating.toString());
     formData.append("entry.195003812", orderData.desiredTime);
@@ -197,7 +200,6 @@ export default function ArmarPedidoPage() {
               cart={cart}
               addToCart={addToCart}
               removeFromCart={removeFromCart}
-              handleConfirmOrder={handleOrderConfirm}
             />
           </div>
         </section>

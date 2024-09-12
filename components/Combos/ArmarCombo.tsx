@@ -75,18 +75,16 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
 
     const pizzaNames = comboPizzas.map((pizza) => pizza.name).join(", ");
     const message = `Hola, me gustaría ordenar el combo ${combo.comboName}:
-    \nPizzas: ${pizzaNames}
-    \nPrecio: $${combo.specialPrice}
-    \nNombre: ${orderData.name}
-    \n${
-      orderData.deliveryMethod === "Enviar"
-        ? `Dirección: ${orderData.address}\n`
-        : ""
-    }
-    \nTeléfono: ${orderData.phone}
-    \nHora deseada: ${orderData.desiredTime}
-    \nInstrucciones especiales: ${orderData.specialInstructions}
-    \nMétodo de entrega: ${orderData.deliveryMethod}`;
+Pizzas: ${pizzaNames}
+Precio: $${combo.specialPrice}
+Nombre: ${orderData.name}
+Método de entrega: ${orderData.deliveryMethod}
+${
+  orderData.deliveryMethod === "Enviar" ? `Dirección: ${orderData.address}` : ""
+}
+Teléfono: ${orderData.phone}
+Hora deseada: ${orderData.desiredTime}
+Instrucciones especiales: ${orderData.specialInstructions}`;
 
     const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
       message
@@ -182,7 +180,9 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
                 name="address"
                 value={orderData.address}
                 onChange={handleInputChange}
-                className={`col-span-3 ${errors.address ? "border-red-500" : ""}`}
+                className={`col-span-3 ${
+                  errors.address ? "border-red-500" : ""
+                }`}
               />
             </div>
           )}
@@ -229,7 +229,10 @@ const ArmarCombo: React.FC<ArmarComboProps> = ({
               <Label htmlFor="promo" className="text-right">
                 Promoción
               </Label>
-              <div id="promo" className="col-span-3 text-lg font-bold text-blue-600">
+              <div
+                id="promo"
+                className="col-span-3 text-lg font-bold text-blue-600"
+              >
                 {combo.promo}
               </div>
             </div>
