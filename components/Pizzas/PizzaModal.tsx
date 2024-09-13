@@ -80,7 +80,7 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, onClose, addToCart, onNe
           <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-4">{pizza.name}</h3>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">{pizza.description}</p>
           <div className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
-            <h4 className="font-semibold mb-1 sm:mb-2">Receta:</h4>
+            <h4 className="font-semibold mb-1 sm:mb-2">Ingredientes:</h4>
             <p>{pizza.receta ? pizza.receta.join(", ") : "No disponible"}</p>
           </div>
           <div className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">

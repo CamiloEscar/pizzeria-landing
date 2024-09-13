@@ -104,7 +104,7 @@ const Logo: React.FC = () => {
           >
             <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
               <Image
-                src="/images/logo-header.png"
+                src="/images/logo-header.webp"
                 alt="Logo"
                 width={76}
                 height={76}

@@ -10,7 +10,10 @@ interface MenuViewProps {
 }
 
 const formatPrice = (price: number): string => {
-  return price.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return price.toLocaleString("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 
 const MenuView: React.FC<MenuViewProps> = ({ pizzas, addToCart }) => {
@@ -19,25 +22,27 @@ const MenuView: React.FC<MenuViewProps> = ({ pizzas, addToCart }) => {
       {pizzas.map((pizza) => (
         <div
           key={pizza.id}
-          className="flex flex-col md:flex-row items-start md:items-end border-b border-gray-200 py-6 gap-4"
+          className="flex flex-row items-start border border-gray-300 md:border md:border-gray-200 rounded-lg p-4 md:rounded-lg md:p-6 gap-4"
         >
-          {/* Imagen redonda de la pizza */}
-          <div className="relative w-32 h-32 rounded-full overflow-hidden flex-shrink-0 self-center md:self-end">
+          {/* Imagen cuadrada redondeada */}
+          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden flex-shrink-0 self-center">
             <Image
               src={pizza.image}
               alt={pizza.name}
               layout="fill"
               objectFit="cover"
-              className="rounded-full shadow-md"
+              className="rounded-lg shadow-md"
               unoptimized
             />
           </div>
 
           {/* Contenido principal */}
-          <div className="flex-grow w-full">
+          <div className="flex-grow">
             {/* Título y botón de agregar */}
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800">{pizza.name}</h3>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+                {pizza.name}
+              </h3>
               <Button
                 onClick={() => addToCart(pizza)}
                 className="py-2 px-3 bg-red-600 hover:bg-red-700 text-white rounded-full text-sm transition-all duration-300 flex items-center justify-center"
@@ -50,7 +55,9 @@ const MenuView: React.FC<MenuViewProps> = ({ pizzas, addToCart }) => {
 
             {/* Precio y Promoción */}
             <div className="flex items-center mb-2">
-              <span className="text-2xl font-bold text-gray-900">${formatPrice(pizza.price)}</span>
+              <span className="text-2xl font-bold text-gray-900">
+                ${formatPrice(pizza.price)}
+              </span>
               {pizza.promotion && (
                 <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                   {pizza.promotion}
@@ -58,9 +65,9 @@ const MenuView: React.FC<MenuViewProps> = ({ pizzas, addToCart }) => {
               )}
             </div>
 
-            {/* Descripción (opcional) */}
+            {/* Descripción (oculta en pantallas pequeñas) */}
             {pizza.description && (
-              <p className="text-sm text-gray-600 mt-1 line-clamp-2 md:line-clamp-none">
+              <p className="hidden md:block text-sm text-gray-600 mt-1 line-clamp-2 md:line-clamp-none">
                 {pizza.description}
               </p>
             )}

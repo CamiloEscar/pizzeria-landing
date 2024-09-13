@@ -160,7 +160,7 @@ const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories })
         >
           <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
             <Image
-              src="/images/logo.jpeg"
+              src="/images/logo.webp"
               alt="Logo"
               width={160}
               height={160}
@@ -211,17 +211,17 @@ const Stories: React.FC<{
     {
       username: "donatello.ok",
       timestamp: "2h",
-      profilePic: "/images/logo.jpeg",
+      profilePic: "/images/logo.webp",
     },
     {
       username: "donatello.ok",
       timestamp: "5h",
-      profilePic: "/images/logo.jpeg",
+      profilePic: "/images/logo.webp",
     },
     {
       username: "donatello.ok",
       timestamp: "1d",
-      profilePic: "/images/logo.jpeg",
+      profilePic: "/images/logo.webp",
     },
   ];
 

@@ -12,7 +12,7 @@ const LoadingState = () => {
           transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
         >
           <Image
-            src="/images/logo-header.png" // Usa una imagen de pizza en tu carpeta de assets
+            src="/images/logo-header.webp" // Usa una imagen de pizza en tu carpeta de assets
             alt="Pizza Spinner"
             width={100}
             height={100}

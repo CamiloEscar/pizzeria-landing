@@ -164,7 +164,7 @@ const Footer: React.FC = () => {
                 >
                   <MessageCircle size={20} />
                 </a>
-                <a
+                {/* <a
                   href="https://www.instagram.com/camilo.escar"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -172,7 +172,7 @@ const Footer: React.FC = () => {
                   aria-label="Instagram Camilo Escar"
                 >
                   <Instagram size={20} />
-                </a>
+                </a> */}
               </div>
               <p className="mb-1">
                 &copy; {new Date().getFullYear()} Pizzería Donatello
