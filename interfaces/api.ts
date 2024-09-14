@@ -4,79 +4,76 @@ import { Combo } from "./Combo";
 const api = {
     pizza: {
         list: async (): Promise<Pizza[]> => {
-            return fetch(
-                "https://docs.google.com/spreadsheets/d/1sAWtNHo2vGtWAZK_bMdCZfkI-oWqGyJ0QY_zms5ZNik/pub?gid=0&single=true&output=tsv",
-                { next: { tags: ["pizzas"] } }
-            )
-            .then((res) => res.text())
-            .then((text) => {
-                return text
-                    .split("\n")
-                    .slice(1)
-                    .map((row) => {
-                        const [id, name, description, price, image, rating, promotion, receta] = row.split("\t");
+            try {
+                const response = await fetch(
+                    "https://docs.google.com/spreadsheets/d/1sAWtNHo2vGtWAZK_bMdCZfkI-oWqGyJ0QY_zms5ZNik/pub?gid=0&single=true&output=tsv"
+                );
+                const text = await response.text();
 
-                        return {
-                            id: parseInt(id.trim()),          // Convertir id a número
-                            name: name.trim(),
-                            description: description.trim(),
-                            price: parseFloat(price.trim()),  // Convertir price a número
-                            image: image.trim(),
-                            rating: parseFloat(rating.trim()), // Convertir rating a número
-                            promotion: promotion ? promotion.trim() : undefined,
-                            receta: receta ? receta.trim().split(",").map(item => item.trim()) : [] // Convertir receta a array
-                        } as Pizza;  // Asegurarse de que el tipo devuelto sea Pizza
-                    });
-            });
+                return text.split("\n").slice(1).map((row) => {
+                    const [id, name, description, price, halfPrice, image, rating, promotion, receta] = row.split("\t");
+
+                    return {
+                        id: parseInt(id.trim()),
+                        name: name.trim(),
+                        description: description.trim(),
+                        price: parseFloat(price.trim()),
+                        halfPrice: parseFloat(halfPrice.trim()), // Nueva columna para halfPrice
+                        image: image.trim(),
+                        rating: parseFloat(rating.trim()),
+                        promotion: promotion ? promotion.trim() : undefined,
+                        receta: receta ? receta.trim().split(",").map(item => item.trim()) : []
+                    } as Pizza;
+                });
+            } catch (error) {
+                console.error("Error fetching pizzas:", error);
+                return [];
+            }
         },
         combos: async (): Promise<Combo[]> => {
-            // Obtén la lista de pizzas completa para calcular originalPrice
-            const pizzas = await api.pizza.list();
+            try {
+                const pizzas = await api.pizza.list();
 
-            return fetch(
-                "https://docs.google.com/spreadsheets/d/1sAWtNHo2vGtWAZK_bMdCZfkI-oWqGyJ0QY_zms5ZNik/pub?gid=1122033337&single=true&output=tsv", // URL actualizada para la hoja Combos
-                { next: { tags: ["combos"] } }
-            )
-            .then((res) => res.text())
-            .then((text) => {
+                const response = await fetch(
+                    "https://docs.google.com/spreadsheets/d/1sAWtNHo2vGtWAZK_bMdCZfkI-oWqGyJ0QY_zms5ZNik/pub?gid=1122033337&single=true&output=tsv"
+                );
+                const text = await response.text();
+
                 const combos: Combo[] = [];
-                text.split("\n")
-                    .slice(1)
-                    .forEach((row) => {
-                        const [comboName, pizzaIdsString, specialPriceString, promo] = row.split("\t");
+                text.split("\n").slice(1).forEach((row) => {
+                    const [comboName, pizzaIdsString, specialPriceString, promo] = row.split("\t");
 
-                        if (!comboName || !pizzaIdsString || !specialPriceString) {
-                            // Ignorar filas incompletas
-                            return;
-                        }
+                    if (!comboName || !pizzaIdsString || !specialPriceString) {
+                        return;
+                    }
 
-                        const pizzaIds = pizzaIdsString.split(",")
-                            .map(id => parseInt(id.trim()))
-                            .filter(id => !isNaN(id)); // Filtrar IDs no válidos
+                    const pizzaIds = pizzaIdsString.split(",")
+                        .map(id => parseInt(id.trim()))
+                        .filter(id => !isNaN(id));
 
-                        // Validar specialPrice y convertirlo a número
-                        const specialPrice = parseFloat(specialPriceString.trim().replace(".", "").replace(",", "."));
-                        if (isNaN(specialPrice) || specialPrice <= 0) {
-                            return;
-                        }
+                    const specialPrice = parseFloat(specialPriceString.trim().replace(".", "").replace(",", "."));
+                    if (isNaN(specialPrice) || specialPrice <= 0) {
+                        return;
+                    }
 
-                        // Calcula el originalPrice sumando los precios de las pizzas
-                        const originalPrice = pizzaIds.reduce((total, id) => {
-                            const pizza = pizzas.find(p => p.id === id);
-                            return pizza ? total + pizza.price : total;
-                        }, 0);
+                    const originalPrice = pizzaIds.reduce((total, id) => {
+                        const pizza = pizzas.find(p => p.id === id);
+                        return pizza ? total + pizza.price : total;
+                    }, 0);
 
-                        // Empuja el combo al array con todas las propiedades requeridas
-                        combos.push({
-                            comboName: comboName.trim(),
-                            pizzaIds,
-                            specialPrice,
-                            originalPrice,
-                            promo: promo ? promo.trim() : undefined // Añadir la promoción
-                        });
+                    combos.push({
+                        comboName: comboName.trim(),
+                        pizzaIds,
+                        specialPrice,
+                        originalPrice,
+                        promo: promo ? promo.trim() : undefined
                     });
+                });
                 return combos;
-            });
+            } catch (error) {
+                console.error("Error fetching combos:", error);
+                return [];
+            }
         }
     }
 };

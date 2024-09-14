@@ -7,9 +7,9 @@ export const useStories = () => {
   const [isPaused, setIsPaused] = useState(false);
 
   const storyImages = [
-    "/images/story1.jpg",
-    "/images/story2.jpg",
-    "/images/story3.jpg",
+    "/images/Menu.webp",
+    // "/images/Menu.webp",
+    // "/images/Menu.webp",
     // Add more story image paths as needed
   ];
 

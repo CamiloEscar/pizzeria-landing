@@ -11,13 +11,20 @@ import { Pizza } from "../../interfaces/pizza";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 
+interface CartItem extends Pizza {
+  quantity: number;
+  isHalf: boolean;
+}
+
+type CartType = CartItem[];
+
 interface CartDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  cart: { [key: number]: number };
+  cart: CartType;
   pizzas: Pizza[];
-  addToCart: (pizza: Pizza) => void;
-  removeFromCart: (pizzaId: number) => void;
+  addToCart: (pizza: Pizza, isHalf: boolean) => void;
+  removeFromCart: (pizzaId: number, isHalf: boolean) => void;
   getTotalPrice: () => string;
   handleOrderDialogOpen: () => void;
 }
@@ -32,74 +39,84 @@ const CartDialog: React.FC<CartDialogProps> = ({
   getTotalPrice,
   handleOrderDialogOpen,
 }) => {
+  const renderCartItems = () => {
+    return cart.map((item) => renderCartItem(item));
+  };
+
+  const handleAddToCart = (item: CartItem) => {
+    const pizza = pizzas.find(p => p.id === item.id);
+    if (pizza) {
+      addToCart(pizza, item.isHalf);
+    }
+  };
+
+  const renderCartItem = (item: CartItem) => (
+    <div
+      key={`${item.id}-${item.isHalf ? "half" : "full"}`}
+      className="flex flex-col mb-4 bg-gray-100 p-3 rounded-lg"
+    >
+      <div className="flex justify-between items-center">
+        <div className="flex items-center">
+          <Image
+            src={item.image}
+            alt={item.name}
+            width={480}
+            height={480}
+            className="w-16 h-16 object-cover rounded-md mr-4"
+            unoptimized
+          />
+          <div>
+            <h3 className="font-semibold">{item.name}</h3>
+            <p className="text-sm text-gray-600">
+              ${item.isHalf ? (item.halfPrice || item.price / 2).toFixed(2) : item.price.toFixed(2)}
+              {item.isHalf ? " (Media)" : " (Entera)"}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => removeFromCart(item.id, item.isHalf)}
+          >
+            <Minus size={16} />
+          </Button>
+          <span className="mx-2 font-semibold">{item.quantity}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleAddToCart(item)}
+          >
+            <Plus size={16} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-2 text-red-600"
+            onClick={() => {
+              // Remove all quantities of this item
+              for (let i = 0; i < item.quantity; i++) {
+                removeFromCart(item.id, item.isHalf);
+              }
+            }}
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby="dialog-description" className="sm:max-w-[500px]">
-      <p id="dialog-description">Este es el contenido de</p>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-red-800">
             Tu carrito
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4 max-h-[60vh] overflow-y-auto">
-          {Object.entries(cart).map(([pizzaId, quantity]) => {
-            const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-            if (!pizza) return null; // No muestra nada si la pizza no se encuentra
-
-            return (
-              <div
-                key={pizzaId}
-                className="flex justify-between items-center mb-4 bg-gray-100 p-3 rounded-lg"
-              >
-                <div className="flex items-center">
-                  <Image
-                    src={pizza.image}
-                    alt={pizza.name}
-                    width={480}
-                    height={480}
-                    className="w-16 h-16 object-cover rounded-md mr-4"
-                    unoptimized
-                  />
-                  <div>
-                    <h3 className="font-semibold">{pizza.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      ${pizza.price.toFixed(2)} c/u
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeFromCart(parseInt(pizzaId))}
-                  >
-                    <Minus size={16} />
-                  </Button>
-                  <span className="mx-2 font-semibold">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addToCart(pizza)}
-                  >
-                    <Plus size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-2 text-red-600"
-                    onClick={() => {
-                      // Elimina todas las unidades de la pizza del carrito
-                      for (let i = 0; i < quantity; i++) {
-                        removeFromCart(parseInt(pizzaId));
-                      }
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
+          {renderCartItems()}
         </div>
         <div className="mt-4 text-xl font-bold text-red-800">
           Total: ${getTotalPrice()}

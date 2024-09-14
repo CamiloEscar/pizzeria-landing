@@ -1,14 +1,7 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Pizza } from "../../interfaces/pizza";
 import { motion } from "framer-motion";
@@ -16,19 +9,16 @@ import { motion } from "framer-motion";
 interface OrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleWhatsAppClick: () => Promise<{ success: boolean }>;
   orderData: {
     name: string;
     address: string;
     phone: string;
     specialInstructions: string;
-    rating: number;
     desiredTime: string;
   };
-  cart: { [key: number]: number };
+  cart: { [key: number]: { quantity: number; isHalf: boolean } };
   pizzas: Pizza[];
   clearCart: () => void;
   handleOrderConfirm?: () => Promise<void>;
@@ -40,72 +30,59 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   handleInputChange,
   handleWhatsAppClick,
   orderData,
-  cart = {},
+  cart,
   pizzas,
   clearCart,
   handleOrderConfirm,
 }) => {
-  const [currentStage, setCurrentStage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [deliveryOption, setDeliveryOption] = useState("Enviar"); // Nueva opción de entrega o retiro
+  const [deliveryOption, setDeliveryOption] = useState("Enviar");
 
   const getCartItems = () => {
-    return Object.entries(cart).map(([pizzaId, quantity]) => {
+    return Object.entries(cart).map(([pizzaId, { quantity, isHalf }]) => {
       const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-      return { pizza, quantity };
-    });
+      return pizza ? { pizza, quantity, isHalf } : null;
+    }).filter(Boolean) as { pizza: Pizza; quantity: number; isHalf: boolean }[];
   };
 
   const getTotalPrice = () => {
-    return Object.entries(cart)
-      .reduce((sum, [pizzaId, quantity]) => {
-        const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-        return pizza ? sum + pizza.price * quantity : sum;
-      }, 0)
-      .toFixed(2);
+    return getCartItems().reduce((sum, { pizza, quantity, isHalf }) => 
+      sum + pizza.price * quantity * (isHalf ? 0.5 : 1), 0
+    ).toFixed(2);
   };
 
   const handleConfirmOrder = async () => {
-    if (
-      !orderData.name ||
-      !orderData.phone ||
-      (deliveryOption === "Enviar" && !orderData.address)
-    ) {
+    if (!orderData.name || !orderData.phone || (deliveryOption === "Enviar" && !orderData.address)) {
       alert("Por favor, completa todos los campos requeridos.");
       return;
     }
     setIsLoading(true);
-    if (handleOrderConfirm) {
-      await handleOrderConfirm();
-    }
-    setIsLoading(false);
-    setCurrentStage(3);
-  };
-
-  const handleWhatsAppConfirm = async () => {
-    setIsLoading(true);
+    if (handleOrderConfirm) await handleOrderConfirm();
     const result = await handleWhatsAppClick();
     setIsLoading(false);
     if (result.success) {
-      setCurrentStage(4);
       clearCart();
+      onOpenChange(false);
     } else {
-      alert(
-        "Hubo un problema al enviar el mensaje de WhatsApp. Por favor, inténtalo de nuevo."
-      );
+      alert("Hubo un problema al enviar el pedido. Por favor, inténtalo de nuevo.");
     }
   };
 
   const OrderSummary = () => (
     <div className="bg-gray-100 p-4 rounded-lg mt-4">
       <h3 className="text-lg font-bold mb-2">Resumen de la orden</h3>
-      {getCartItems().map(({ pizza, quantity }) => (
-        <div key={pizza?.id} className="flex justify-between items-center mb-2">
-          <span>{pizza?.name}</span>
-          <span>
-            {quantity} x ${pizza?.price.toFixed(2)} = $
-            {(quantity * (pizza?.price || 0)).toFixed(2)}
+      {getCartItems().map(({ pizza, quantity, isHalf }) => (
+        <div key={`${pizza.id}-${isHalf}`} className="flex justify-between items-center mb-2">
+          <span className="flex items-center">
+            <span className="font-medium">{quantity}x</span>
+            <span className="ml-2">{pizza.name}</span>
+            {isHalf && (
+              <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                Media
+              </span>
+            )}
           </span>
+          <span>${(quantity * pizza.price * (isHalf ? 0.5 : 1)).toFixed(2)}</span>
         </div>
       ))}
       <div className="border-t border-gray-300 mt-2 pt-2 font-bold flex justify-between">
@@ -115,247 +92,87 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
     </div>
   );
 
-  const renderStage = () => {
-    switch (currentStage) {
-      case 1:
-        return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
-                Detalles del pedido
-              </DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Nombre
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  className="col-span-3"
-                  value={orderData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">
-                  Dirección
-                </Label>
-                <Input
-                  id="address"
-                  name="address"
-                  className="col-span-3"
-                  value={orderData.address}
-                  onChange={handleInputChange}
-                  disabled={deliveryOption === "Retirar"}
-                  required={deliveryOption === "Enviar"}
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Teléfono
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  className="col-span-3"
-                  value={orderData.phone}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="specialInstructions" className="text-right">
-                  Instrucciones especiales
-                </Label>
-                <Textarea
-                  id="specialInstructions"
-                  name="specialInstructions"
-                  className="col-span-3"
-                  value={orderData.specialInstructions}
-                  onChange={handleInputChange}
-                  placeholder="Ej: Sin cebolla, pizza bien cocida, etc."
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="desiredTime" className="text-right">
-                  Hora deseada
-                </Label>
-                <Input
-                  id="desiredTime"
-                  name="desiredTime"
-                  type="time"
-                  className="col-span-3"
-                  value={orderData.desiredTime}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {/* Opción de Enviar o Retirar */}
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="deliveryOption" className="text-right">
-                  Opción de entrega
-                </Label>
-                <div className="col-span-3">
-                  <div className="flex space-x-4">
-                    <Button
-                      variant={
-                        deliveryOption === "Enviar" ? "default" : "outline"
-                      }
-                      onClick={() => setDeliveryOption("Enviar")}
-                    >
-                      Enviar
-                    </Button>
-                    <Button
-                      variant={
-                        deliveryOption === "Retirar" ? "default" : "outline"
-                      }
-                      onClick={() => setDeliveryOption("Retirar")}
-                    >
-                      Retirar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <OrderSummary />
-            <DialogFooter>
-              <Button
-                onClick={() => setCurrentStage(2)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
-              >
-                Revisar pedido
-              </Button>
-            </DialogFooter>
-          </motion.div>
-        );
-      case 2:
-        return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
-                Resumen del pedido
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <h2 className="text-lg font-bold">Detalles del pedido</h2>
-              <p>
-                <strong>Nombre:</strong> {orderData.name}
-              </p>
-              <p>
-                <strong>Dirección:</strong>{" "}
-                {deliveryOption === "Enviar" ? orderData.address : "No aplica"}
-              </p>
-              <p>
-                <strong>Teléfono:</strong> {orderData.phone}
-              </p>
-              <p>
-                <strong>Instrucciones especiales:</strong>{" "}
-                {orderData.specialInstructions || "Ninguna"}
-              </p>
-              <p>
-                <strong>Hora deseada:</strong>{" "}
-                {orderData.desiredTime || "No especificada"}
-              </p>
-              <p>
-                <strong>Opción de entrega:</strong> {deliveryOption}
-              </p>
-            </div>
-            <OrderSummary />
-            <DialogFooter>
-              <Button
-                onClick={handleConfirmOrder}
-                className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
-                disabled={isLoading}
-              >
-                {isLoading ? "Procesando..." : "Confirmar pedido"}
-              </Button>
-              <Button
-                onClick={() => setCurrentStage(1)}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white mt-2"
-              >
-                Editar pedido
-              </Button>
-            </DialogFooter>
-          </motion.div>
-        );
-      case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
-                Confirmación del pedido
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <h2 className="text-lg font-bold">Enviar pedido por WhatsApp</h2>
-              <p>
-                Haz clic en el botón para enviar tu pedido a través de WhatsApp.
-              </p>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={handleWhatsAppConfirm}
-                className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
-                disabled={isLoading}
-              >
-                {isLoading ? "Enviando..." : "Enviar por WhatsApp"}
-              </Button>
-            </DialogFooter>
-          </motion.div>
-        );
-      case 4:
-        return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-red-800">
-                ¡Pedido completado!
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <h2 className="text-lg font-bold">Gracias por tu pedido</h2>
-              <p>Tu pedido ha sido enviado exitosamente.</p>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={() => onOpenChange(false)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
-              >
-                Cerrar
-              </Button>
-            </DialogFooter>
-          </motion.div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-h-screen overflow-auto p-0"
-        style={{ maxHeight: "90vh" }} // Ajusta la altura máxima del contenido
-      >
-        {renderStage()}
+      <DialogContent className="max-w-md mx-auto p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-red-800">Finalizar pedido</DialogTitle>
+        </DialogHeader>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="space-y-4"
+        >
+          <div className="flex space-x-4">
+            <Button
+              variant={deliveryOption === "Enviar" ? "default" : "outline"}
+              onClick={() => setDeliveryOption("Enviar")}
+              className="flex-1"
+            >
+              Enviar
+            </Button>
+            <Button
+              variant={deliveryOption === "Retirar" ? "default" : "outline"}
+              onClick={() => setDeliveryOption("Retirar")}
+              className="flex-1"
+            >
+              Retirar
+            </Button>
+          </div>
+          
+          <Input
+            placeholder="Nombre"
+            name="name"
+            value={orderData.name}
+            onChange={handleInputChange}
+            required
+          />
+          
+          <Input
+            placeholder="Teléfono"
+            name="phone"
+            value={orderData.phone}
+            onChange={handleInputChange}
+            required
+          />
+          
+          {deliveryOption === "Enviar" && (
+            <Input
+              placeholder="Dirección"
+              name="address"
+              value={orderData.address}
+              onChange={handleInputChange}
+              required
+            />
+          )}
+          
+          <Textarea
+            placeholder="Instrucciones especiales"
+            name="specialInstructions"
+            value={orderData.specialInstructions}
+            onChange={handleInputChange}
+          />
+          
+          <Input
+            type="time"
+            name="desiredTime"
+            value={orderData.desiredTime}
+            onChange={handleInputChange}
+            placeholder="Hora deseada"
+          />
+
+          <OrderSummary />
+        </motion.div>
+        <DialogFooter>
+          <Button
+            onClick={handleConfirmOrder}
+            className="w-full bg-green-600 hover:bg-green-700 text-white mt-4"
+            disabled={isLoading}
+          >
+            {isLoading ? "Procesando..." : "Confirmar y enviar por WhatsApp"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
