@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link"; // Import Link from Next.js
+import Link from "next/link";
 
 interface HeaderProps {
   scrollToSection: (section: string) => void;
@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { name: "Inicio", section: "inicio"},
+    { name: "Inicio", section: "inicio" },
     { name: "Menú", section: "productos" },
     { name: "Combos", section: "combos" },
     { name: "Armar Pedido", section: "armar-pedido", href: "/armar-pedido" },
@@ -38,8 +38,6 @@ const Header: React.FC<HeaderProps> = ({
   const handleNavItemClick = useCallback(
     (section: string, href?: string) => {
       if (href) {
-        // If href is provided, it's a link to another page
-        // The routing will be handled by Next.js Link component
       } else {
         scrollToSection(section);
       }
@@ -49,74 +47,60 @@ const Header: React.FC<HeaderProps> = ({
   );
 
   return (
-    <>
-      <header className="header bg-white bg-opacity-50 backdrop-blur-lg shadow-md py-1 md:py-2 fixed top-0 left-0 right-0 z-50">
-        <div className="container mx-auto px-2 md:px-4 max-w-screen-lg flex items-center justify-between">
-          <Logo />
-          <DesktopNavigation
-            navItems={navItems}
-            onItemClick={handleNavItemClick}
-          />
-          <MobileNavigation
-            navItems={navItems}
-            onItemClick={handleNavItemClick}
-            isMenuOpen={isMenuOpen}
-            setIsMenuOpen={setIsMenuOpen}
-          />
-          <CartButton
-            getTotalItems={getTotalItems}
-            setIsCartOpen={setIsCartOpen}
-            isCartOpen={isCartOpen}
-          />
-        </div>
-      </header>
-    </>
+    <header className="header bg-white bg-opacity-50 backdrop-blur-lg shadow-md py-1 md:py-2 fixed top-0 left-0 right-0 z-50">
+      <div className="container mx-auto px-2 md:px-4 max-w-screen-lg flex items-center justify-between">
+        <Logo />
+        <DesktopNavigation
+          navItems={navItems}
+          onItemClick={handleNavItemClick}
+        />
+        <MobileNavigation
+          navItems={navItems}
+          onItemClick={handleNavItemClick}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+        />
+        <CartButton
+          getTotalItems={getTotalItems}
+          setIsCartOpen={setIsCartOpen}
+          isCartOpen={isCartOpen}
+        />
+      </div>
+    </header>
   );
 };
 
-const Logo: React.FC = () => {
-  const [showNotification, setShowNotification] = useState(true);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowNotification(false);
-    }, 5000); // Hide the notification after 5 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-<Link href="/#inicio" passHref>
-      <motion.div
-        className="relative flex items-center justify-center w-16 h-16 cursor-pointer"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="relative flex items-center justify-center w-16 h-16">
-          <div
-            className="absolute w-18 h-18 rounded-full p-1"
-            style={{
-              background:
-                "conic-gradient(from 0deg at 50% 50%, yellow, red, green, yellow)",
-              padding: "4px",
-            }}
-          >
-            <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
-              <Image
-                src="/images/logo-header.webp"
-                alt="Logo"
-                width={76}
-                height={76}
-                className="object-contain relative z-10"
-              />
-            </div>
+const Logo: React.FC = () => (
+  <Link href="/#inicio" passHref>
+    <motion.div
+      className="relative flex items-center justify-center w-16 h-16 cursor-pointer"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="relative flex items-center justify-center w-16 h-16">
+        <div
+          className="absolute w-18 h-18 rounded-full p-1"
+          style={{
+            background:
+              "conic-gradient(from 0deg at 50% 50%, yellow, red, green, yellow)",
+            padding: "4px",
+          }}
+        >
+          <div className="flex items-center justify-center w-full h-full bg-white rounded-full">
+            <Image
+              src="/images/logo-header.webp"
+              alt="Logo"
+              width={76}
+              height={76}
+              className="object-contain relative z-10"
+            />
           </div>
         </div>
-      </motion.div>
-    </Link>
-  );
-};
+      </div>
+    </motion.div>
+  </Link>
+);
 
 const DesktopNavigation: React.FC<{
   navItems: Array<{ name: string; section: string; href?: string }>;

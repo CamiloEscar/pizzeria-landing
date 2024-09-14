@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Pizza } from "../interfaces/pizza";
 import { Combo } from "@/interfaces/Combo";
 import api from "@/interfaces/api";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Header from "@/components/Main/Header";
 import { HeroSection } from "@/components/Main/HeroSection";
 import Footer from "@/components/Main/Footer";
@@ -13,6 +13,7 @@ import OrderDialog from "@/components/Pizzas/OrderDialog";
 import CombosSection from "@/components/Main/ComboSection";
 import LoadingState from "@/components/LoadingState";
 import PizzaMenu from "@/components/Pizzas/PizzaMenu";
+import { ShoppingCart } from "lucide-react";
 
 interface OrderData {
   name: string;
@@ -48,6 +49,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isAddingToCart = useRef(false);
+  const [showFloatingCart, setShowFloatingCart] = useState(false);
+  
 
   const envioRetirar = (newValue: string) => {
     setOrderData((prevState) => ({ ...prevState, envioRetirar: newValue }));
@@ -75,6 +78,11 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const getTotalItems = useCallback(
+    () => cart.reduce((sum, item) => sum + item.quantity, 0),
+    [cart]
+  );
+
   const addToCart = useCallback((pizza: Pizza, isHalf: boolean) => {
     if (isAddingToCart.current) return;
     isAddingToCart.current = true;
@@ -85,7 +93,6 @@ export default function Home() {
         (item) => item.id === pizza.id && item.isHalf === isHalf
       );
       if (existingItemIndex > -1) {
-        // Update quantity if item already exists
         const newCart = [...prevCart];
         newCart[existingItemIndex] = {
           ...newCart[existingItemIndex],
@@ -93,10 +100,11 @@ export default function Home() {
         };
         return newCart;
       } else {
-        // Add new item to cart if it doesn't exist
         return [...prevCart, { ...pizza, quantity: 1, isHalf }];
       }
     });
+
+    setShowFloatingCart(true);
 
     setTimeout(() => {
       isAddingToCart.current = false;
@@ -123,14 +131,44 @@ export default function Home() {
       }
       return prevCart;
     });
-  }, []);
+
+    // Hide floating cart if cart becomes empty
+    setShowFloatingCart((prev) => getTotalItems() > 0);
+  }, [getTotalItems]);
 
   const clearCart = useCallback(() => setCart([]), []);
 
-  const getTotalItems = useCallback(
-    () => cart.reduce((sum, item) => sum + item.quantity, 0),
-    [cart]
-  );
+  const FloatingCartButton = useCallback(() => (
+    <motion.div
+      className="fixed z-50 bottom-4 right-4 md:bottom-8 md:right-8"
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      <motion.div
+        className="relative bg-red-600 text-white rounded-full p-3 md:p-4 cursor-pointer shadow-lg"
+        onClick={() => setIsCartOpen(true)}
+        aria-label="Floating Cart"
+      >
+        <ShoppingCart size={28} />
+        <AnimatePresence>
+          {getTotalItems() > 0 && (
+            <motion.span
+              key="cart-count"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              className="absolute -top-2 -right-2 bg-white text-red-600 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+            >
+              {getTotalItems()}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  ), [getTotalItems, setIsCartOpen]);
 
   const getTotalPrice = useCallback(() => {
     return cart
@@ -174,7 +212,7 @@ export default function Home() {
     }\nHora deseada: ${orderData.desiredTime}\nPara: ${orderData.envioRetirar}`;
     console.log("WhatsApp message:", message);
 
-    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/3442670573?text=${encodeURIComponent(
       message
     )}`;
     console.log("WhatsApp URL:", whatsappUrl);
@@ -234,6 +272,11 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    setShowFloatingCart(getTotalItems() > 0);
+  }, [getTotalItems]);
+  
+
   if (isLoading) {
     return <LoadingState />;
   }
@@ -263,6 +306,9 @@ export default function Home() {
         </section>
         <Footer />
       </main>
+      <AnimatePresence>
+        {showFloatingCart && <FloatingCartButton />}
+      </AnimatePresence>
       <AnimatePresence>
         {isCartOpen && (
           <CartDialog

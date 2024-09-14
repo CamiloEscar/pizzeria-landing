@@ -79,7 +79,7 @@ const CombosSection: React.FC<CombosSectionProps> = ({ combos, clearCart, envioR
                 );
               })
             ) : (
-              <p className="text-center text-gray-700">No hay combos disponibles.</p>
+              <p className="text-center text-gray-700">No hay combos disponibles el dia de hoy.</p>
             )}
           </div>
         )}

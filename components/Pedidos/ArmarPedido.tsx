@@ -162,7 +162,7 @@ const ArmarPedido: React.FC<ArmarPedidoProps> = ({
         `\nDetalles del pedido: ${cartItems} ` +
         `\nTotal: $${orderData.total}`;
 
-      const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+      const whatsappUrl = `https://wa.me/3442670573?text=${encodeURIComponent(
         message
       )}`;
       window.open(whatsappUrl, "_blank");

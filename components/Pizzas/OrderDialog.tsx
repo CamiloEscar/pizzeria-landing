@@ -128,7 +128,6 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             name="name"
             value={orderData.name}
             onChange={handleInputChange}
-            required
           />
           
           <Input
@@ -136,7 +135,6 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             name="phone"
             value={orderData.phone}
             onChange={handleInputChange}
-            required
           />
           
           {deliveryOption === "Enviar" && (
@@ -145,7 +143,6 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
               name="address"
               value={orderData.address}
               onChange={handleInputChange}
-              required
             />
           )}
           

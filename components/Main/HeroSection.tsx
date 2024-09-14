@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Phone, MapPin, Clock, X, ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import {
+  Phone,
+  MapPin,
+  Clock,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  Menu,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStories } from "./useStories";
 
@@ -26,83 +36,26 @@ export const HeroSection = () => {
 
   return (
     <>
-      {/* Hero Section */}
       <section
         id="inicio"
         ref={heroRef}
-        className="relative flex flex-col items-center justify-center text-white bg-black overflow-hidden min-h-screen"
+        className="relative flex flex-col items-center justify-center min-h-screen bg-fixed bg-cover bg-center overflow-hidden bg-fixed-mobile"
+        style={{
+          backgroundImage: `url('/images/La-de-Rucula.webp')`,
+          backgroundSize: "cover", // Mantiene la imagen de fondo cubierta
+          backgroundPosition: "center", // Centra la imagen de fondo
+          filter: "brightness(1.1) contrast(1)", // Ajusta el brillo y contraste
+        }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/La-de-Rucula.webp')" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90"></div>
-        </div>
-  
-        <div className="relative z-10 text-center p-6 md:p-12 lg:p-16 max-w-4xl mx-auto">
-          <div className="mb-8"> {/* Ajusta el margen inferior aquí */}
-            <StoriesLogo onOpenStories={() => setIsStoriesOpen(true)} />
-          </div>
-          
-          <motion.h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 leading-tight drop-shadow-lg mt-8"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Pizzería Donatello
-          </motion.h1>
-          <motion.p 
-            className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-8 md:mb-12 lg:mb-16 leading-relaxed drop-shadow-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Las mejores pizzas de la ciudad
-          </motion.p>
-          <motion.a
-            href="#productos"
-            className="inline-block bg-red-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full text-base sm:text-lg font-semibold shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            Ver Menú
-          </motion.a>
-        </div>
-      </section>
-  
-      {/* Info Section */}
-      <section className="py-12 bg-white">
-        <div className="relative max-w-4xl mx-auto px-4">
-          <motion.div 
-            className="p-8 bg-white rounded-lg shadow-lg border border-gray-300"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <div className="space-y-6">
-              <InfoItem 
-                icon={MapPin} 
-                text="Congreso de Tucuman 784, Concepción del Uruguay" 
-                label="Dirección"
-              />
-              <InfoItem 
-                icon={Phone} 
-                text={
-                  <a href="https://wa.me/+543442670573" className="text-red-500 hover:text-red-700">
-                    +54 3442 670573
-                  </a>
-                } 
-                label="Teléfono"
-              />
-              <InfoItem 
-                icon={Clock} 
-                text="Lunes, miercoles, viernes, sabado y Domingo, 20:00 - 23:30" 
-                label="Horario"
-              />
-            </div>
-          </motion.div>
+        {/* Fondo con overlay y menos desenfoque */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>{" "}
+        {/* Menos desenfoque */}
+        {/* Contenido principal */}
+        <div className="relative z-10 text-center p-6 md:p-8 max-w-6xl mx-auto mt-24">
+          <Logo onOpenStories={() => setIsStoriesOpen(true)} />
+          <HeroContent />
+          <CTAButtons />
+          <InfoSection />
         </div>
       </section>
 
@@ -121,17 +74,154 @@ export const HeroSection = () => {
   );
 };
 
-const InfoItem: React.FC<{ icon: React.ElementType; text: React.ReactNode; label: string }> = ({ icon: Icon, text, label }) => (
-  <div className="flex flex-col items-center space-y-2">
-    <div className="flex items-center justify-center w-12 h-12 bg-red-600 rounded-full">
-      <Icon className="h-6 w-6 text-white" />
+const Logo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => (
+  <motion.div
+    className="mb-6 relative cursor-pointer"
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5 }}
+    onClick={onOpenStories}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40">
+      <div className="absolute w-[90%] h-[90%] rounded-full bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 animate-spin-slow"></div>
+      <div className="relative w-[85%] h-[85%] bg-white rounded-full flex items-center justify-center">
+        <Image
+          src="/images/logo-header.webp"
+          alt="Pizzería Donatello Logo"
+          width={144} // Ajusta el tamaño del logo
+          height={144} // Ajusta el tamaño del logo
+          className="object-contain relative z-10"
+        />
+      </div>
     </div>
-    <h3 className="text-lg font-semibold">{label}</h3>
-    <p className="text-sm sm:text-base lg:text-lg">{text}</p>
-  </div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.5 }}
+      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-red-800 text-sm px-3 py-1 rounded-full shadow-lg font-semibold"
+    >
+      ¡Novedades!
+    </motion.div>
+  </motion.div>
 );
 
-const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => {
+
+
+
+const HeroContent = () => (
+  <>
+    <motion.div
+      className="text-[clamp(3rem,6vw,6rem)] font-bold mb-4 leading-tight tracking-tight bg-gradient-to-br from-red-600 via-red-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md"
+      initial={{ opacity: 0, y: -30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
+    >
+      <Image
+        width={440}
+        height={440}
+        src="/images/nombre.webp" // Asegúrate de ajustar la ruta a la ubicación de tu imagen
+        alt="Pizzería Donatello"
+        className="w-full h-auto object-cover"
+      />
+    </motion.div>
+    {/* <motion.p
+  className="text-[clamp(1.5rem,3vw,2.5rem)] font-light mb-8 leading-snug text-gray-100 drop-shadow-sm max-w-3xl mx-auto"
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+>
+  Las mejores pizzas de la ciudad
+</motion.p> */}
+  </>
+);
+
+const CTAButtons = () => (
+  <motion.div
+    className="grid grid-cols-2 gap-2 sm:flex sm:flex-row justify-center items-center mb-8"
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, delay: 0.4 }}
+  >
+    {/* Botón de Ver Menú */}
+    <a
+      href="#productos"
+      className="flex items-center justify-center w-full sm:w-auto bg-red-600 text-white 
+        p-2 sm:p-3 rounded-full text-sm sm:text-base font-semibold shadow-lg hover:bg-red-700 
+        transition duration-300 transform hover:scale-105"
+    >
+      <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+      <span className="hidden sm:inline ml-2">Ver Menú</span>
+    </a>
+
+    {/* Botón de Ordenar Ahora */}
+    <a
+      href="https://wa.me/+543442670573"
+      className="flex items-center justify-center w-full sm:w-auto bg-green-600 text-white 
+        p-2 sm:p-3 rounded-full text-sm sm:text-base font-semibold shadow-lg hover:bg-green-700 
+        transition duration-300 transform hover:scale-105"
+    >
+      <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
+      <span className="hidden sm:inline ml-2">Ordenar Ahora</span>
+    </a>
+  </motion.div>
+);
+
+const InfoSection = () => (
+  <section className="w-full max-w-5xl mx-auto mt-8 px-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
+      <InfoItem
+        icon={MapPin}
+        text="Congreso de Tucuman 784"
+        label="Ubicación"
+      />
+      <InfoItem
+        icon={Phone}
+        text={
+          <a
+            href="https://wa.me/+543442670573"
+            className="text-yellow-400 hover:text-yellow-300 transition-colors duration-300 ease-in-out"
+          >
+            +54 3442 670573
+          </a>
+        }
+        label="Contacto"
+      />
+      <InfoItem
+        icon={Clock}
+        text="Lun, Mié, Vie, Sáb y Dom, 20:00 - 23:30"
+        label="Horario"
+      />
+    </div>
+  </section>
+);
+
+const InfoItem: React.FC<{
+  icon: React.ElementType;
+  text: React.ReactNode;
+  label: string;
+}> = ({ icon: Icon, text, label }) => (
+  <motion.div
+    className="flex flex-col items-center bg-black/70 backdrop-blur-sm p-4 rounded-xl shadow-md transition duration-300 hover:bg-black/80 w-full max-w-xs"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    whileHover={{ scale: 1.05 }}
+  >
+    <div className="flex items-center justify-center w-12 h-12 bg-yellow-400 rounded-full mb-2">
+      <Icon className="h-6 w-6 text-red-800" />
+    </div>
+    <div className="text-center">
+      <h3 className="text-lg font-semibold text-yellow-400 mb-1">{label}</h3>
+      <p className="text-sm text-white">{text}</p>
+    </div>
+  </motion.div>
+);
+
+const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({
+  onOpenStories,
+}) => {
   const [showNotification, setShowNotification] = useState(true);
 
   useEffect(() => {
@@ -150,11 +240,12 @@ const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories })
       transition={{ duration: 0.5 }}
       onClick={onOpenStories}
     >
-      <div className="relative inline-flex items-center justify-center w-40 h-40 cursor-pointer">
+      <div className="relative inline-flex items-center justify-center w-32 h-32 cursor-pointer">
         <div
-          className="absolute w-44 h-44 rounded-full"
+          className="absolute w-36 h-36 rounded-full"
           style={{
-            background: "conic-gradient(from 0deg at 50% 50%, yellow, red, green, yellow)",
+            background:
+              "conic-gradient(from 0deg at 50% 50%, #FFD700, #FF4500, #32CD32, #FFD700)",
             padding: "4px",
           }}
         >
@@ -162,8 +253,8 @@ const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories })
             <Image
               src="/images/logo.webp"
               alt="Logo"
-              width={160}
-              height={160}
+              width={128}
+              height={128}
               className="object-contain rounded-full"
             />
           </div>
@@ -178,7 +269,7 @@ const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories })
             transition={{ duration: 0.3 }}
             className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-lg"
           >
-            ¡Publicaciones destacadas!
+            ¡Novedades!
           </motion.div>
         )}
       </AnimatePresence>

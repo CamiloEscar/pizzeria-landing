@@ -86,7 +86,7 @@ Teléfono: ${orderData.phone}
 Hora deseada: ${orderData.desiredTime}
 Instrucciones especiales: ${orderData.specialInstructions}`;
 
-    const whatsappUrl = `https://wa.me/3442475466?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/3442670573?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");

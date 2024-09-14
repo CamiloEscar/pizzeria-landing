@@ -90,14 +90,19 @@ button {
 }
 
 .background-image {
-  position: absolute; /* Asegura que la imagen esté detrás del contenido */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/La-de-Rucula.webp'); /* Ruta a tu imagen de pizza */
   background-size: cover; /* Ajusta el tamaño de la imagen para cubrir toda la página */
   background-position: center; /* Centra la imagen */
-  background-repeat: no-repeat; /* Evita que la imagen se repita */
-  z-index: -1; /* Coloca la imagen detrás del contenido */
+  background-attachment: fixed; /* Mantiene la imagen fija en el fondo */
+  filter: brightness(1.1) contrast(1); /* Ajusta el brillo y contraste por defecto */
+}
+
+@media (max-width: 768px) {
+  .background-image {
+    background-size: cover; /* Asegúrate de que la imagen mantenga el tamaño adecuado en móviles */
+    background-attachment: scroll; /* Permite que la imagen se desplace con el contenido en móviles */
+    filter: brightness(1) contrast(1); /* Ajusta el brillo y contraste si es necesario */
+  }
+  .bg-fixed-mobile {
+    background-attachment: scroll; /* Permite que la imagen se desplace con el contenido en pantallas pequeñas */
+  }
 }
