@@ -71,20 +71,22 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   const OrderSummary = () => (
     <div className="bg-gray-100 p-4 rounded-lg mt-4">
       <h3 className="text-lg font-bold mb-2">Resumen de la orden</h3>
-      {getCartItems().map(({ pizza, quantity, isHalf }) => (
-        <div key={`${pizza.id}-${isHalf}`} className="flex justify-between items-center mb-2">
-          <span className="flex items-center">
-            <span className="font-medium">{quantity}x</span>
-            <span className="ml-2">{pizza.name}</span>
-            {isHalf && (
-              <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                Media
-              </span>
-            )}
-          </span>
-          <span>${(quantity * pizza.price * (isHalf ? 0.5 : 1)).toFixed(2)}</span>
-        </div>
-      ))}
+      <div className="max-h-40 overflow-y-auto mb-2">
+        {getCartItems().map(({ pizza, quantity, isHalf }) => (
+          <div key={`${pizza.id}-${isHalf}`} className="flex justify-between items-center mb-2">
+            <span className="flex items-center">
+              <span className="font-medium">{quantity}x</span>
+              <span className="ml-2">{pizza.name}</span>
+              {isHalf && (
+                <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                  Media
+                </span>
+              )}
+            </span>
+            <span>${(quantity * pizza.price * (isHalf ? 0.5 : 1)).toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
       <div className="border-t border-gray-300 mt-2 pt-2 font-bold flex justify-between">
         <span>Total:</span>
         <span>${getTotalPrice()}</span>
