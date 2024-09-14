@@ -98,7 +98,7 @@ export const HeroSection = () => {
               />
               <InfoItem 
                 icon={Clock} 
-                text="Todos los días, 18:00 - 23:00" 
+                text="Lunes, miercoles, viernes, sabado y Domingo, 20:00 - 23:30" 
                 label="Horario"
               />
             </div>
