@@ -100,7 +100,7 @@ export default function Home() {
 
     setTimeout(() => {
       isAddingToCart.current = false;
-    }, 300); // Debounce time
+    }, 100); // Debounce time
   }, []);
 
   const removeFromCart = useCallback((pizzaId: number, isHalf: boolean) => {
@@ -114,28 +114,11 @@ export default function Home() {
         if (newCart[existingItemIndex].quantity > 1) {
           newCart[existingItemIndex] = {
             ...newCart[existingItemIndex],
-            quantity: newCart[existingItemIndex].quantity - 1
+            quantity: newCart[existingItemIndex].quantity - 1,
           };
         } else {
           newCart.splice(existingItemIndex, 1);
         }
-        return newCart;
-      }
-      return prevCart;
-    });
-  }, []);
-
-  const updatePizzaType = useCallback((pizzaId: number, isHalf: boolean) => {
-    console.log("Updating pizza type:", pizzaId, isHalf);
-    setCart((prevCart) => {
-      const existingItemIndex = prevCart.findIndex(
-        (item) => item.id === pizzaId
-      );
-      console.log("Existing item index:", existingItemIndex);
-      if (existingItemIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingItemIndex].isHalf = isHalf;
-        console.log("Updated cart:", newCart);
         return newCart;
       }
       return prevCart;
