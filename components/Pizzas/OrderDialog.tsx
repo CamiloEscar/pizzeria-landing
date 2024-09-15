@@ -6,6 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Pizza } from "../../interfaces/pizza";
 import { motion } from "framer-motion";
 
+interface CartItem extends Pizza {
+  quantity: number;
+  isHalf: boolean;
+}
+
 interface OrderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,7 +23,7 @@ interface OrderDialogProps {
     specialInstructions: string;
     desiredTime: string;
   };
-  cart: { [key: number]: { quantity: number; isHalf: boolean } };
+  cart: CartItem[];
   pizzas: Pizza[];
   clearCart: () => void;
   handleOrderConfirm?: () => Promise<void>;
@@ -38,17 +43,13 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState("Enviar");
 
-  const getCartItems = () => {
-    return Object.entries(cart).map(([pizzaId, { quantity, isHalf }]) => {
-      const pizza = pizzas.find((p) => p.id === parseInt(pizzaId));
-      return pizza ? { pizza, quantity, isHalf } : null;
-    }).filter(Boolean) as { pizza: Pizza; quantity: number; isHalf: boolean }[];
-  };
-
   const getTotalPrice = () => {
-    return getCartItems().reduce((sum, { pizza, quantity, isHalf }) => 
-      sum + pizza.price * quantity * (isHalf ? 0.5 : 1), 0
-    ).toFixed(2);
+    return cart
+      .reduce((sum, item) => {
+        const price = item.isHalf ? item.halfPrice || item.price / 2 : item.price;
+        return sum + price * item.quantity;
+      }, 0)
+      .toFixed(2);
   };
 
   const handleConfirmOrder = async () => {
@@ -57,33 +58,30 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
       return;
     }
     setIsLoading(true);
-    if (handleOrderConfirm) await handleOrderConfirm();
-    const result = await handleWhatsAppClick();
-    setIsLoading(false);
-    if (result.success) {
-      clearCart();
-      onOpenChange(false);
-    } else {
-      alert("Hubo un problema al enviar el pedido. Por favor, inténtalo de nuevo.");
+  
+    if (handleOrderConfirm) {
+      await handleOrderConfirm();
     }
+    
+    setIsLoading(false);
   };
 
   const OrderSummary = () => (
     <div className="bg-gray-100 p-4 rounded-lg mt-4">
-      <h3 className="text-lg font-bold mb-2">Resumen de la orden</h3>
+      <h3 className="text-lg font-bold mb-2">Resumen del pedido</h3>
       <div className="max-h-40 overflow-y-auto mb-2">
-        {getCartItems().map(({ pizza, quantity, isHalf }) => (
-          <div key={`${pizza.id}-${isHalf}`} className="flex justify-between items-center mb-2">
+        {cart.map((item, index) => (
+          <div key={`${item.id}-${item.isHalf}-${index}`} className="flex justify-between items-center mb-2">
             <span className="flex items-center">
-              <span className="font-medium">{quantity}x</span>
-              <span className="ml-2">{pizza.name}</span>
-              {isHalf && (
+              <span className="font-medium">{item.quantity}x</span>
+              <span className="ml-2">{item.name}</span>
+              {item.isHalf && (
                 <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                   Media
                 </span>
               )}
             </span>
-            <span>${(quantity * pizza.price * (isHalf ? 0.5 : 1)).toFixed(2)}</span>
+            <span>${((item.isHalf ? (item.halfPrice || item.price / 2) : item.price) * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
@@ -128,6 +126,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             name="name"
             value={orderData.name}
             onChange={handleInputChange}
+            aria-label="Nombre"
           />
           
           <Input
@@ -135,6 +134,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             name="phone"
             value={orderData.phone}
             onChange={handleInputChange}
+            aria-label="Teléfono"
           />
           
           {deliveryOption === "Enviar" && (
@@ -143,6 +143,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
               name="address"
               value={orderData.address}
               onChange={handleInputChange}
+              aria-label="Dirección"
             />
           )}
           
@@ -151,6 +152,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             name="specialInstructions"
             value={orderData.specialInstructions}
             onChange={handleInputChange}
+            aria-label="Instrucciones especiales"
           />
           
           <Input
@@ -159,6 +161,7 @@ const OrderDialog: React.FC<OrderDialogProps> = ({
             value={orderData.desiredTime}
             onChange={handleInputChange}
             placeholder="Hora deseada"
+            aria-label="Hora deseada"
           />
 
           <OrderSummary />

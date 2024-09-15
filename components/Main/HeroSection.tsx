@@ -14,8 +14,10 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useStories } from "./useStories";
 
-export const HeroSection = () => {
+
+export const HeroSection: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [isBusinessOpen, setIsBusinessOpen] = useState(false);
   const {
     isStoriesOpen,
     setIsStoriesOpen,
@@ -42,20 +44,17 @@ export const HeroSection = () => {
         className="relative flex flex-col items-center justify-center min-h-screen bg-fixed bg-cover bg-center overflow-hidden bg-fixed-mobile"
         style={{
           backgroundImage: `url('/images/La-de-Rucula.webp')`,
-          backgroundSize: "cover", // Mantiene la imagen de fondo cubierta
-          backgroundPosition: "center", // Centra la imagen de fondo
-          filter: "brightness(1.1) contrast(1)", // Ajusta el brillo y contraste
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "brightness(1.1) contrast(1)",
         }}
       >
-        {/* Fondo con overlay y menos desenfoque */}
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>{" "}
-        {/* Menos desenfoque */}
-        {/* Contenido principal */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
         <div className="relative z-10 text-center p-6 md:p-8 max-w-6xl mx-auto mt-24">
-          <Logo onOpenStories={() => setIsStoriesOpen(true)} />
+          <Logo onOpenStories={() => setIsStoriesOpen(true)} isBusinessOpen={isBusinessOpen} />
           <HeroContent />
           <CTAButtons />
-          <InfoSection />
+          <InfoSection setIsBusinessOpen={setIsBusinessOpen} />
         </div>
       </section>
 
@@ -74,77 +73,79 @@ export const HeroSection = () => {
   );
 };
 
-const Logo: React.FC<{ onOpenStories: () => void }> = ({ onOpenStories }) => (
-  <motion.div
-    className="mb-6 relative cursor-pointer"
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.5 }}
-    onClick={onOpenStories}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-  >
-    <div className="relative inline-flex items-center justify-center w-32 h-32 md:w-40 md:h-40">
-      <div className="absolute w-[90%] h-[90%] rounded-full bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 animate-spin-slow"></div>
-      <div className="relative w-[85%] h-[85%] bg-white rounded-full flex items-center justify-center">
-        <Image
-          src="/images/logo-header.webp"
-          alt="Pizzería Donatello Logo"
-          width={144} // Ajusta el tamaño del logo
-          height={144} // Ajusta el tamaño del logo
-          className="object-contain relative z-10"
-        />
+interface LogoProps {
+  onOpenStories: () => void;
+  isBusinessOpen: boolean;
+}
+
+const Logo: React.FC<LogoProps> = ({ onOpenStories, isBusinessOpen }) => {
+  return (
+    <div className="mb-6 relative cursor-pointer" onClick={onOpenStories}>
+      <div className="relative inline-flex items-center justify-center w-28 h-28 md:w-36 md:h-36">
+        <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 animate-spin-slow"></div>
+        <motion.div 
+          className="relative w-[90%] h-[90%] rounded-full flex items-center justify-center"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 1.05 }}
+        >
+          <Image
+            src="/images/logo-header.webp"
+            alt="Pizzería Donatello Logo"
+            width={160}
+            height={160}
+            className="object-contain relative z-10"
+          />
+        </motion.div>
       </div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+        className="absolute top-[calc(100% + 10px)] left-1/2 transform -translate-x-1/2 bg-yellow-400 text-red-800 text-sm px-3 py-1 rounded-full shadow-lg font-semibold z-20"
+      >
+        ¡Novedades!
+      </motion.div>
+      <AnimatePresence>
+        {!isBusinessOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            className="absolute -top-4 -right-4 bg-red-600 text-white text-xs px-2 py-1 rounded-full shadow-lg font-bold z-30"
+          >
+            CERRADO
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.5 }}
-      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-red-800 text-sm px-3 py-1 rounded-full shadow-lg font-semibold"
-    >
-      ¡Novedades!
-    </motion.div>
+  );
+};
+
+const HeroContent: React.FC = () => (
+  <motion.div
+    className="text-[clamp(3rem,6vw,6rem)] font-bold mb-4 leading-tight tracking-tight bg-gradient-to-br from-red-600 via-red-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md"
+    initial={{ opacity: 0, y: -30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.7, ease: "easeOut" }}
+  >
+    <Image
+      width={440}
+      height={440}
+      src="/images/nombre.webp"
+      alt="Pizzería Donatello"
+      className="w-full h-auto object-cover"
+    />
   </motion.div>
 );
 
-
-
-
-const HeroContent = () => (
-  <>
-    <motion.div
-      className="text-[clamp(3rem,6vw,6rem)] font-bold mb-4 leading-tight tracking-tight bg-gradient-to-br from-red-600 via-red-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md"
-      initial={{ opacity: 0, y: -30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: "easeOut" }}
-    >
-      <Image
-        width={440}
-        height={440}
-        src="/images/nombre.webp" // Asegúrate de ajustar la ruta a la ubicación de tu imagen
-        alt="Pizzería Donatello"
-        className="w-full h-auto object-cover"
-      />
-    </motion.div>
-    {/* <motion.p
-  className="text-[clamp(1.5rem,3vw,2.5rem)] font-light mb-8 leading-snug text-gray-100 drop-shadow-sm max-w-3xl mx-auto"
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
->
-  Las mejores pizzas de la ciudad
-</motion.p> */}
-  </>
-);
-
-const CTAButtons = () => (
+const CTAButtons: React.FC = () => (
   <motion.div
     className="grid grid-cols-2 gap-2 sm:flex sm:flex-row justify-center items-center mb-8"
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.5, delay: 0.4 }}
   >
-    {/* Botón de Ver Menú */}
     <a
       href="#productos"
       className="flex items-center justify-center w-full sm:w-auto bg-red-600 text-white 
@@ -155,7 +156,6 @@ const CTAButtons = () => (
       <span className="hidden sm:inline ml-2">Ver Menú</span>
     </a>
 
-    {/* Botón de Ordenar Ahora */}
     <a
       href="https://wa.me/+543442670573"
       className="flex items-center justify-center w-full sm:w-auto bg-green-600 text-white 
@@ -168,45 +168,123 @@ const CTAButtons = () => (
   </motion.div>
 );
 
-const InfoSection = () => (
-  <section className="w-full max-w-5xl mx-auto mt-8 px-4">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
-      <InfoItem
-        icon={MapPin}
-        text="Congreso de Tucuman 784"
-        label="Ubicación"
-      />
-      <InfoItem
-        icon={Phone}
-        text={
-          <a
-            href="https://wa.me/+543442670573"
-            className="text-yellow-400 hover:text-yellow-300 transition-colors duration-300 ease-in-out"
-          >
-            +54 3442 670573
-          </a>
-        }
-        label="Contacto"
-      />
-      <InfoItem
-        icon={Clock}
-        text="Lun, Mié, Vie, Sáb y Dom, 20:00 - 23:30"
-        label="Horario"
-      />
-    </div>
-  </section>
-);
+type OpeningHours = {
+  open: { hour: number; minute: number };
+  close: { hour: number; minute: number };
+};
 
-const InfoItem: React.FC<{
+type WeeklySchedule = {
+  [key: number]: OpeningHours | null;
+};
+
+interface InfoSectionProps {
+  setIsBusinessOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const InfoSection: React.FC<InfoSectionProps> = ({ setIsBusinessOpen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const checkIfOpen = () => {
+      const now = new Date();
+      const day = now.getDay();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+
+      const openingHours: WeeklySchedule = {
+        0: { open: { hour: 20, minute: 0 }, close: { hour: 23, minute: 30 } },
+        1: { open: { hour: 20, minute: 0 }, close: { hour: 23, minute: 30 } },
+        2: null,
+        3: { open: { hour: 20, minute: 0 }, close: { hour: 23, minute: 30 } },
+        4: null,
+        5: { open: { hour: 20, minute: 0 }, close: { hour: 23, minute: 30 } },
+        6: { open: { hour: 20, minute: 0 }, close: { hour: 23, minute: 30 } },
+      };
+
+      const todaySchedule = openingHours[day];
+
+      if (todaySchedule) {
+        const currentTime = hour * 60 + minute;
+        const openTime = todaySchedule.open.hour * 60 + todaySchedule.open.minute;
+        const closeTime = todaySchedule.close.hour * 60 + todaySchedule.close.minute;
+
+        const isWithinHours = currentTime >= openTime && currentTime <= closeTime;
+        setIsOpen(isWithinHours);
+        setIsBusinessOpen(isWithinHours);
+      } else {
+        setIsOpen(false);
+        setIsBusinessOpen(false);
+      }
+    };
+
+    checkIfOpen();
+    const intervalId = setInterval(checkIfOpen, 60000); // Check every minute
+
+    return () => clearInterval(intervalId);
+  }, [setIsBusinessOpen]);
+
+  return (
+    <section className="w-full max-w-5xl mx-auto mt-8 px-4">
+      <div className="text-center mb-6">
+        <div
+          className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-lg ${
+            isOpen ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          } transition duration-300 ease-in-out shadow-md`}
+        >
+          <p className={`flex items-center gap-2 ${isOpen ? "text-green-800" : "text-red-800"}`}>
+            <span className={`w-4 h-4 rounded-full ${isOpen ? "bg-green-500" : "bg-red-500"}`} />
+            {isOpen ? "¡Abierto!" : "Cerrado"}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
+        <InfoItem
+          icon={MapPin}
+          text={
+            <a
+              href="https://maps.app.goo.gl/jPRCfBXGcUdUMJso7"
+              className="text-yellow-400 hover:text-yellow-300 transition-colors duration-300 ease-in-out"
+            >
+              Congreso de Tucuman 784
+            </a>
+          }
+          label="Ubicación"
+        />
+        <InfoItem
+          icon={Phone}
+          text={
+            <a
+              href="https://wa.me/+543442670573"
+              className="text-yellow-400 hover:text-yellow-300 transition-colors duration-300 ease-in-out"
+            >
+              +54 3442 670573
+            </a>
+          }
+          label="Contacto"
+        />
+        <InfoItem
+          icon={Clock}
+          text="Lun, Mié, Vie, Sáb y Dom, 20:00 - 23:30"
+          label="Horario"
+        />
+      </div>
+    </section>
+  );
+};
+
+interface InfoItemProps {
   icon: React.ElementType;
   text: React.ReactNode;
   label: string;
-}> = ({ icon: Icon, text, label }) => (
+}
+
+const InfoItem: React.FC<InfoItemProps> = ({ icon: Icon, text, label }) => (
   <motion.div
     className="flex flex-col items-center bg-black/70 backdrop-blur-sm p-4 rounded-xl shadow-md transition duration-300 hover:bg-black/80 w-full max-w-xs"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
+    transition={{ duration: 0.2 }}
     whileHover={{ scale: 1.05 }}
   >
     <div className="flex items-center justify-center w-12 h-12 bg-yellow-400 rounded-full mb-2">
@@ -218,6 +296,8 @@ const InfoItem: React.FC<{
     </div>
   </motion.div>
 );
+
+export default HeroSection;
 
 const StoriesLogo: React.FC<{ onOpenStories: () => void }> = ({
   onOpenStories,

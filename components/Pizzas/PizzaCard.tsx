@@ -1,58 +1,55 @@
-import React, { useState, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { Star, ShoppingCart, PizzaIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import PizzaModal from "./PizzaModal";
-import { Pizza } from "../../interfaces/pizza";
+'use client'
+
+import React, { useState, useCallback, useRef } from "react"
+import { motion } from "framer-motion"
+import Image from "next/image"
+import { Star, ShoppingCart, PizzaIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import PizzaModal from "./PizzaModal"
+import { Pizza } from "../../interfaces/pizza"
 
 interface PizzaCardProps {
-  pizza: Pizza;
-  addToCart: (pizza: Pizza, isHalf: boolean) => void;
-  pizzas: Pizza[];
+  pizza: Pizza
+  addToCart: (pizza: Pizza, isHalf: boolean) => void
+  pizzas: Pizza[]
 }
 
 const formatPrice = (price: number): string => {
   return price.toLocaleString("es-ES", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
-};
+  })
+}
 
-export default function PizzaCard({
-  pizza,
-  addToCart,
-  pizzas,
-}: PizzaCardProps) {
-  const [showModal, setShowModal] = useState(false);
-  const [currentPizza, setCurrentPizza] = useState(pizza);
-  const [isHalfPizza, setIsHalfPizza] = useState(false);
-  const addToCartRef = useRef<(pizza: Pizza, isHalf: boolean) => void>(addToCart);
+export default function PizzaCard({ pizza, addToCart, pizzas }: PizzaCardProps) {
+  const [showModal, setShowModal] = useState(false)
+  const [currentPizza, setCurrentPizza] = useState(pizza)
+  const [isHalfPizza, setIsHalfPizza] = useState(false)
+  const addToCartRef = useRef(addToCart)
 
-  // Update the ref when addToCart changes
   React.useEffect(() => {
-    addToCartRef.current = addToCart;
-  }, [addToCart]);
+    addToCartRef.current = addToCart
+  }, [addToCart])
 
   const handleNavigatePizza = useCallback((direction: "prev" | "next") => {
-    const currentIndex = pizzas.findIndex((p) => p.id === currentPizza.id);
+    const currentIndex = pizzas.findIndex((p) => p.id === currentPizza.id)
     const newIndex =
       direction === "next"
         ? (currentIndex + 1) % pizzas.length
-        : (currentIndex - 1 + pizzas.length) % pizzas.length;
-    setCurrentPizza(pizzas[newIndex]);
-  }, [pizzas, currentPizza]);
+        : (currentIndex - 1 + pizzas.length) % pizzas.length
+    setCurrentPizza(pizzas[newIndex])
+  }, [pizzas, currentPizza])
 
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("PizzaCard handleAddToCart:", currentPizza, isHalfPizza);
-    addToCartRef.current(currentPizza, isHalfPizza);
-  }, [currentPizza, isHalfPizza]);
+    e.preventDefault()
+    e.stopPropagation()
+    addToCartRef.current(currentPizza, isHalfPizza)
+  }, [currentPizza, isHalfPizza])
 
   const handlePizzaTypeChange = useCallback((isHalf: boolean) => {
-    setIsHalfPizza(isHalf);
-  }, []);
+    setIsHalfPizza(isHalf)
+  }, [])
+
   return (
     <>
       <motion.div
@@ -117,8 +114,8 @@ export default function PizzaCard({
             <div className="flex space-x-2 mt-2">
               <Button
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handlePizzaTypeChange(false);
+                  e.stopPropagation()
+                  handlePizzaTypeChange(false)
                 }}
                 className={`flex-1 py-2 px-4 ${
                   !isHalfPizza
@@ -130,8 +127,8 @@ export default function PizzaCard({
               </Button>
               <Button
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handlePizzaTypeChange(true);
+                  e.stopPropagation()
+                  handlePizzaTypeChange(true)
                 }}
                 className={`flex-1 py-2 px-4 ${
                   isHalfPizza
@@ -164,5 +161,5 @@ export default function PizzaCard({
         />
       )}
     </>
-  );
+  )
 }

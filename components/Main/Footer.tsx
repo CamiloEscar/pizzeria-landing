@@ -32,10 +32,18 @@ const Footer: React.FC = () => {
         <div className="container mx-auto px-4 flex flex-col md:flex-row">
           {/* Formulario de contacto */}
           <div className="w-full md:w-1/2 mb-8 md:mb-0">
-            <h2 className="text-3xl font-bold text-red-800 mb-8">Contáctanos</h2>
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-3xl font-bold text-red-800 mb-8">
+              Contáctanos
+            </h2>
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white p-8 rounded-lg shadow-lg"
+            >
               <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Nombre:
                 </label>
                 <Input
@@ -48,7 +56,10 @@ const Footer: React.FC = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="tel" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="tel"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Dirección:
                 </label>
                 <Input
@@ -61,7 +72,10 @@ const Footer: React.FC = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="message" className="block text-gray-700 font-semibold mb-2">
+                <label
+                  htmlFor="message"
+                  className="block text-gray-700 font-semibold mb-2"
+                >
                   Mensaje:
                 </label>
                 <Textarea
@@ -102,8 +116,17 @@ const Footer: React.FC = () => {
               Congreso de Tucumán 784, Concepción del Uruguay
             </p>
             <p className="text-gray-600 text-center md:text-left">
-              Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te esperamos!
+              Visítanos para disfrutar de las mejores pizzas artesanales. ¡Te
+              esperamos!
             </p>
+            <a
+              href="https://www.google.com/maps/place/Pizzer%C3%ADa+Donatello/@-32.4742466,-58.2367625,17z/data=!4m6!3m5!1s0x95afdb14f31a5cc7:0x17b35b0bb6258e3f!8m2!3d-32.4734175!4d-58.2370292!16s%2Fg%2F11w368jcn0?hl=es-419&entry=ttu&g_ep=EgoyMDI0MDkxMS4wIKXMDSoASAFQAw%3D%3D"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-800 hover:underline mt-4"
+            >
+              Ver nuestra tienda en Google Maps
+            </a>
           </div>
         </div>
       </section>
@@ -145,9 +168,7 @@ const Footer: React.FC = () => {
             {/* Sección de Contacto y Redes Sociales de Camilo Escar */}
             <div className="text-center md:text-right text-gray-400">
               <div className="flex items-center justify-center md:justify-end space-x-4">
-              <p className="mb-1">
-                Hecho por Camilo Escar |
-              </p>
+                <p className="mb-1">Hecho por Camilo Escar |</p>
                 <a
                   href="mailto:camiloescar1995@gmail.com"
                   className="text-gray-400 hover:text-white transition-colors flex items-center space-x-1"
@@ -164,15 +185,6 @@ const Footer: React.FC = () => {
                 >
                   <MessageCircle size={20} />
                 </a>
-                {/* <a
-                  href="https://www.instagram.com/camilo.escar"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-red-600 transition-colors flex items-center"
-                  aria-label="Instagram Camilo Escar"
-                >
-                  <Instagram size={20} />
-                </a> */}
               </div>
               <p className="mb-1">
                 &copy; {new Date().getFullYear()} Pizzería Donatello

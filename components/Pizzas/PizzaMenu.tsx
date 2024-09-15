@@ -1,40 +1,42 @@
-import React, { useState, useMemo } from "react";
-import { Pizza } from "../../interfaces/pizza";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+'use client'
+
+import React, { useState, useMemo } from "react"
+import { Pizza } from "../../interfaces/pizza"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Grid, List, Search } from "lucide-react";
-import PizzaCard from "./PizzaCard";
-import MenuView from "./MenuView";
+} from "@/components/ui/select"
+import { Grid, List, Search } from "lucide-react"
+import PizzaCard from "./PizzaCard"
+import MenuView from "./MenuView"
 
 interface PizzaMenuProps {
-  pizzas: Pizza[];
-  addToCart: (pizza: Pizza, isHalf: boolean) => void;
+  pizzas: Pizza[]
+  addToCart: (pizza: Pizza, isHalf: boolean) => void
 }
 
 const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterType, setFilterType] = useState("all")
 
   const filteredPizzas = useMemo(() => {
     return pizzas.filter((pizza) => {
       const matchesSearch =
         pizza.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pizza.description.toLowerCase().includes(searchTerm.toLowerCase());
+        pizza.description.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesFilter =
         filterType === "all" ||
         (filterType === "promotion" && pizza.promotion) ||
-        (filterType === "no-promotion" && !pizza.promotion);
-      return matchesSearch && matchesFilter;
-    });
-  }, [pizzas, searchTerm, filterType]);
+        (filterType === "no-promotion" && !pizza.promotion)
+      return matchesSearch && matchesFilter
+    })
+  }, [pizzas, searchTerm, filterType])
 
   return (
     <div className="container mx-auto px-4 max-w-6xl">
@@ -94,25 +96,22 @@ const PizzaMenu: React.FC<PizzaMenuProps> = ({ pizzas, addToCart }) => {
       </div>
 
       {viewMode === "grid" ? (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-    {filteredPizzas.map((pizza) => (
-      <div key={pizza.id} className="flex justify-center items-center">
-        <PizzaCard
-          pizza={pizza}
-          addToCart={(pizza: Pizza, isHalf: boolean) => {
-            console.log('PizzaMenu addToCart:', pizza, isHalf);
-            addToCart(pizza, isHalf);
-          }}
-          pizzas={pizzas}
-        />
-      </div>
-    ))}
-  </div>
-) : (
-  <MenuView pizzas={filteredPizzas} addToCart={addToCart} />
-)}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredPizzas.map((pizza) => (
+            <div key={pizza.id} className="flex justify-center items-center">
+              <PizzaCard
+                pizza={pizza}
+                addToCart={addToCart}
+                pizzas={pizzas}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <MenuView pizzas={filteredPizzas} addToCart={addToCart} />
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default PizzaMenu;
+export default PizzaMenu
